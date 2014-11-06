@@ -41,7 +41,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 %eofval{
      return symbolFactory.newSymbol("EOF", EOF, new Location(yyline+1,yycolumn+1,yychar), new Location(yyline+1,yycolumn+1,yychar+1));
 %eofval}
-9
+
 Ident = [a-zA-Z$_] [a-zA-Z0-9$_]*
 IntLiteral = 0 | [1-9][0-9]*
 BoolLiteral = true | false
@@ -78,7 +78,7 @@ white_space = {new_line} | [ \t\f]
 ")"               { return symbol(")",RPAR); }
 "{"               { return symbol("{",BEGIN); }
 "}"               { return symbol("}",END); }
-":="               { return symbol("=",ASSIGN); }
+"="               { return symbol("=",ASSIGN); }
 "+"               { return symbol("plus",BINOP, new Integer( PLUS ) ); }
 "-"               { return symbol("minus",BINOP, new Integer( MINUS ) ); }
 "*"               { return symbol("mult",BINOP, new Integer( MULT ) ); }
@@ -86,7 +86,7 @@ white_space = {new_line} | [ \t\f]
 "%"               { return symbol("mod",BINOP, new Integer( MOD ) ); }
 "<="              { return symbol("leq",COMP,  new Integer( LEQ ) ); }
 ">="              { return symbol("gtq",COMP,  new Integer( GTQ ) ); }
-"="              { return symbol("eq",COMP,  new Integer( EQ  ) ); }
+"=="              { return symbol("eq",COMP,  new Integer( EQ  ) ); }
 "!="              { return symbol("neq",COMP,  new Integer( NEQ ) ); }
 "<"               { return symbol("le",COMP,  new Integer( LE  ) ); }
 ">"               { return symbol("gt",COMP,  new Integer( GT  ) ); }
