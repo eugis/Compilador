@@ -6,7 +6,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 %public
 %class Lexer
 %cup
-%implements sym, minijava.Constants
+%implements sym, compilador.Constants
 %char
 %line
 %column
