@@ -37,7 +37,7 @@ stmt ::= SEMICOLON
     | BEGIN stmtlist:sl END
     | IDENT:lhs ASSIGN expr:rhs SEMICOLON
     | IDENT:lhs ASSIGN READ LPAR RPAR SEMICOLON
-    | IDENT:lhs ASSIGN READ LPAR STRINGCONST:s RPAR SEMICOLON
+    | IDENT:lhs ASSIGN READ LPAR STRINGCONST:s RPAR SEMICOLON /*Falta la clase correspondiente. no se que haría esto*/
     | WRITE LPAR expr:e RPAR SEMICOLON
     | WRITE LPAR STRINGCONST:s RPAR SEMICOLON
     | IF LPAR cond:c RPAR stmt:s

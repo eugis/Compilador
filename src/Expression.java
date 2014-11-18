@@ -2,11 +2,11 @@
  * Created by santi698 on 18/11/14.
  */
 public class Expression extends Node {
-    private String type;
-    public void setType(String type) {
+    private Type type;
+    public void setType(Type type) {
         this.type = type;
     }
-    public String getType() {
+    public Type getType() {
         return this.type;
     }
 
