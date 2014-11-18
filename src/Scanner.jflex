@@ -6,7 +6,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 %public
 %class Lexer
 %cup
-%implements sym, compilador.Constants
+%implements Sym, Constants
 %char
 %line
 %column
@@ -55,20 +55,20 @@ white_space = {new_line} | [ \t\f]
 <YYINITIAL>{
 /* keywords */
 "int"             { return symbol("int",TYPE, new Integer( INTTYPE ) ); }
-"if"              { return symbol("if",IF); }
+"if"              { return symbol("if",IF); } /* TODO ver si conviene crear una clase separada para c/u*/
 "else"            { return symbol("else",ELSE); }
 "while"           { return symbol("while",WHILE); }
 "read"            { return symbol("read",READ); }
 "write"           { return symbol("write",WRITE); }
 
 /* names */
-{Ident}           { return symbol("Identifier",IDENT, yytext()); }
+{Ident}           { return symbol("Identifier",IDENT, new Variable(yytext())); }
 
 /* bool literal */
-{BoolLiteral} { return symbol("Boolconst",BOOLCONST, new Boolean(Boolean.parseBool(yytext()))); }
+{BoolLiteral} { return symbol("Boolconst",BOOLCONST, new Boolean(Boolean.parseBool(yytext()))); } /* Genera un Boolean (constante) */
 
 /* literals */
-{IntLiteral} { return symbol("Intconst",INTCONST, new Integer(Integer.parseInt(yytext()))); }
+{IntLiteral} { return symbol("Intconst",INTCONST, new Integer(Integer.parseInt(yytext()))); } /* Genera un Integer (constante) */
 
 /* separators */
   \"              { string.setLength(0); yybegin(STRING); }
@@ -101,7 +101,7 @@ white_space = {new_line} | [ \t\f]
 <STRING> {
   \"                             { yybegin(YYINITIAL);
       return symbol("StringConst",STRINGCONST,string.toString(),string.length()); }
-  [^\n\r\"\\]+                   { string.append( yytext() ); }
+  [^\n\r\"\\]+                   { string.append( yytext() ); } /* Acá guarda el string */
   \\t                            { string.append('\t'); }
   \\n                            { string.append('\n'); }
 

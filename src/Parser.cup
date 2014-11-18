@@ -11,10 +11,12 @@ import javax.xml.transform.stream.*;
 
 terminal SEMICOLON, COMMA, LPAR, RPAR, BEGIN, END, IF, ELSE, WHILE, READ, WRITE, BUNOP, ASSIGN;
 terminal TYPE, BINOP, UNOP, COMP, BBINOP, INTCONST;
-terminal IDENT,STRINGCONST;
-terminal BOOLCONST;
+terminal String STRINGCONST;
+terminal Boolean BOOLCONST;
+terminal Variable IDENT;
 
-non terminal program, decllist,decl,stmtlist,identlist,stmt,expr,cond;
+non terminal Node program, stmtlist, stmt, cond;
+non terminal Expression decl, decllist, identlist, expr;
 
 precedence left ELSE, UNOP, BINOP, BUNOP, BBINOP;
 
