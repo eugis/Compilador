@@ -17,6 +17,8 @@
     <target name="genScannerAndLexer" depends="init">
         <cup srcfile="${src}/Parser.cup"
              destdir="${src}"
+             parser="Parser"
+             symbols="Sym"
              interface="true"/>
         <jflex file="${src}/Scanner.jflex" destdir="${src}"/>
     </target>
