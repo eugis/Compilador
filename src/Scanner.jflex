@@ -3,6 +3,7 @@ import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
 %%
+
 %public
 %class Lexer
 %cup
@@ -22,12 +23,12 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
   private Symbol symbol(String name, int sym) {
       return symbolFactory.newSymbol(name, sym, new Location(yyline+1,yycolumn+1,yychar), new Location(yyline+1,yycolumn+yylength(),yychar+yylength()));
   }
-
+  
   private Symbol symbol(String name, int sym, Object val) {
       Location left = new Location(yyline+1,yycolumn+1,yychar);
       Location right= new Location(yyline+1,yycolumn+yylength(), yychar+yylength());
       return symbolFactory.newSymbol(name, sym, left, right,val);
-  }
+  } 
   private Symbol symbol(String name, int sym, Object val,int buflength) {
       Location left = new Location(yyline+1,yycolumn+yylength()-buflength,yychar+yylength()-buflength);
       Location right= new Location(yyline+1,yycolumn+yylength(), yychar+yylength());
@@ -36,16 +37,22 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
   private void error(String message) {
     System.out.println("Error at line "+(yyline+1)+", column "+(yycolumn+1)+" : "+message);
   }
-%}
+%} 
 
 %eofval{
-     return symbolFactory.newSymbol("EOF", EOF, new Location(yyline+1,yycolumn+1,yychar), new Location(yyline+1,yycolumn+1,yychar+1));
+     return symbolFactory.newSymbol("EOF", EOF, new Location(yyline+1,yycolumn+1,yychar),
+        new Location(yyline+1,yycolumn+1,yychar+1));
 %eofval}
 
+
 Ident = [a-zA-Z$_] [a-zA-Z0-9$_]*
+
 IntLiteral = 0 | [1-9][0-9]*
+
 BoolLiteral = true | false
+
 new_line = \r|\n|\r\n;
+
 white_space = {new_line} | [ \t\f]
 
 %state STRING
@@ -55,20 +62,26 @@ white_space = {new_line} | [ \t\f]
 <YYINITIAL>{
 /* keywords */
 "int"             { return symbol("int",TYPE, new Integer( INTTYPE ) ); }
-"if"              { return symbol("if",IF); } /* TODO ver si conviene crear una clase separada para c/u*/
+"if"              { return symbol("if",IF); }
 "else"            { return symbol("else",ELSE); }
 "while"           { return symbol("while",WHILE); }
 "read"            { return symbol("read",READ); }
 "write"           { return symbol("write",WRITE); }
 
 /* names */
-{Ident}           { return symbol("Identifier",IDENT, new Variable(yytext())); }
+{Ident}           { return symbol("Identifier",IDENT, yytext()); }
+  
+/* string literals */
+
+/* char literal */
 
 /* bool literal */
-{BoolLiteral} { return symbol("Boolconst",BOOLCONST, new Boolean(Boolean.parseBool(yytext()))); } /* Genera un Boolean (constante) */
+{BoolLiteral} { return symbol("Boolconst",BOOLCONST, new Boolean(Boolean.parseBool(yytext()))); }
 
 /* literals */
-{IntLiteral} { return symbol("Intconst",INTCONST, new Integer(Integer.parseInt(yytext()))); } /* Genera un Integer (constante) */
+{IntLiteral} { return symbol("Intconst",INTCONST, new Integer(Integer.parseInt(yytext()))); }
+
+
 
 /* separators */
   \"              { string.setLength(0); yybegin(STRING); }
@@ -94,14 +107,16 @@ white_space = {new_line} | [ \t\f]
 "||"              { return symbol("or",BBINOP,new Integer( OR  ) ); }
 "!"               { return symbol("not",BUNOP); }
 
+
+
 {white_space}     { /* ignore */ }
 
 }
 
 <STRING> {
-  \"                             { yybegin(YYINITIAL);
-      return symbol("StringConst",STRINGCONST,string.toString(),string.length()); }
-  [^\n\r\"\\]+                   { string.append( yytext() ); } /* Acá guarda el string */
+  \"                             { yybegin(YYINITIAL); 
+                                   return symbol("StringConst",STRINGCONST,string.toString(),string.length()); }
+  [^\n\r\"\\]+                   { string.append( yytext() ); }
   \\t                            { string.append('\t'); }
   \\n                            { string.append('\n'); }
 

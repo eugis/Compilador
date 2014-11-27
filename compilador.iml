@@ -10,6 +10,8 @@
     <orderEntry type="library" name="Cup" level="project" />
     <orderEntry type="library" name="Cup runtime" level="project" />
     <orderEntry type="library" name="JFlex" level="project" />
+    <orderEntry type="library" name="jamaica" level="project" />
+    <orderEntry type="library" name="asm" level="project" />
+    <orderEntry type="library" name="bcel" level="project" />
   </component>
 </module>
-

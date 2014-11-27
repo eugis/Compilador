@@ -1,58 +1,62 @@
-/* Minijava Grammar */
-import java_cup.runtime.ComplexSymbolFactory;
-import java_cup.runtime.ScannerBuffer;
-import java_cup.runtime.XMLElement;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
+import java.util.*;
 import java.io.*;
+import java_cup.runtime.Symbol;
+import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
+import java_cup.runtime.ComplexSymbolFactory;
 
-import javax.xml.transform.*;
-import javax.xml.transform.stream.*;
-
-terminal SEMICOLON, COMMA, LPAR, RPAR, BEGIN, END, IF, ELSE, WHILE, READ, WRITE, BUNOP, ASSIGN;
-terminal TYPE, BINOP, UNOP, COMP, BBINOP, INTCONST;
-terminal String STRINGCONST;
+terminal         SEMICOLON, COMMA, LPAR, RPAR, BEGIN, END,IF, ELSE, WHILE, READ, WRITE, BUNOP, ASSIGN;
+terminal Integer TYPE, BINOP, UNOP, COMP, BBINOP, INTCONST;
+terminal String  IDENT,STRINGCONST;
 terminal Boolean BOOLCONST;
-terminal Variable IDENT;
 
-non terminal Node program, stmtlist, stmt, cond;
-non terminal Expression decl, decllist, identlist, expr;
+non terminal Program        program;
+non terminal List<Declaration>     decllist;
+non terminal Declaration           decl;
+non terminal List<Statement>     stmtlist;
+non terminal List<Expression.Identifier>   identlist;
+non terminal Statement           stmt;
+non terminal Expression           expr;
+non terminal Condition           cond;
 
 precedence left ELSE, UNOP, BINOP, BUNOP, BBINOP;
 
-program   ::=  decllist:d stmtlist:s
+program   ::=  decllist:d stmtlist:s                        {: RESULT = new Program(d,s); :}
     ;
-decllist  ::=  decl:d decllist:dl
-    | /* empty */
+decllist  ::=  decl:d decllist:dl                           {: dl.add(d); RESULT = dl; :}
+    | /* empty decllist */                                  {: RESULT = new LinkedList<Declaration>(); :}
     ;
-stmtlist  ::= stmtlist:sl stmt:s
-    | /* empty */
-        ;
-decl ::= TYPE IDENT:identifier identlist:il  SEMICOLON
+stmtlist  ::= stmtlist:sl stmt:s                            {: sl.add(s); RESULT = sl; :}
+    | /* empty stmtlist */                                  {: RESULT = new LinkedList<Statement>(); :}
     ;
-identlist  ::= identlist:il COMMA IDENT:identifier
-    | /* empty */
+decl ::= TYPE IDENT:i identlist:il  SEMICOLON               {: il.add(0,Expression.ident(ixleft,i,ixright));
+                                                               RESULT = new Declaration(il); :}
     ;
-stmt ::= SEMICOLON
-    | BEGIN stmtlist:sl END
-    | IDENT:lhs ASSIGN expr:rhs SEMICOLON
-    | IDENT:lhs ASSIGN READ LPAR RPAR SEMICOLON
-    | IDENT:lhs ASSIGN READ LPAR STRINGCONST:s RPAR SEMICOLON
-    | WRITE LPAR expr:e RPAR SEMICOLON
-    | WRITE LPAR STRINGCONST:s RPAR SEMICOLON
-    | IF LPAR cond:c RPAR stmt:s
-    | IF LPAR cond:c RPAR stmt:t ELSE stmt:e
-    | WHILE LPAR cond:c RPAR stmt:s
+identlist  ::= identlist:il COMMA IDENT:i                   {: il.add(Expression.ident(ixleft,i,ixright)); RESULT = il; :}
+    | /* empty identlist*/                                  {: RESULT = new LinkedList<Expression.Identifier>(); :}
     ;
-cond ::= BOOLCONST:c
-    | LPAR cond:c RPAR
-    | expr:e1 COMP:op expr:e2
-    | BUNOP cond:c
-    | cond:c1 BBINOP:op cond:c2
+stmt ::= SEMICOLON                                          {: RESULT = Statement.empty(); :}
+    | BEGIN stmtlist:sl END                                 {: RESULT = Statement.compound(sl); :}
+    | IDENT:i ASSIGN expr:e SEMICOLON                       {: RESULT = Statement.assign(ixleft,i,e,ixright); :}
+    | IDENT:i ASSIGN READ LPAR RPAR SEMICOLON               {: RESULT = Statement.read(ixleft,i,ixright); :}
+    | IDENT:i ASSIGN READ LPAR STRINGCONST:s RPAR SEMICOLON {: RESULT = Statement.read(ixleft,i,s,ixright); :}
+    | WRITE LPAR expr:e RPAR SEMICOLON                      {: RESULT = Statement.write(e); :}
+    | WRITE LPAR STRINGCONST:s RPAR SEMICOLON               {: RESULT = Statement.write(s); :}
+    | IF LPAR cond:c RPAR stmt:s                            {: RESULT = Statement.ifthen(c,s); :}
+    | IF LPAR cond:c RPAR stmt:t ELSE stmt:e                {: RESULT = Statement.ifthenelse(c,t,e); :}
+    | WHILE LPAR cond:c RPAR stmt:s                         {: RESULT = Statement.whileloop(c,s); :}
+    | error:e                                               {: parser.report_error("Syntax error, skip rest",e); :}
     ;
-expr ::= IDENT:identifier
-    | INTCONST:constant
-    | LPAR expr:e RPAR
-    | BINOP expr:e
-    | expr:e1 BINOP:op expr:e2
+cond ::= BOOLCONST:c                                        {: RESULT = Condition.boolconst(c); :}
+    | LPAR cond:c RPAR                                      {: RESULT = Condition.priority(c); :}
+    | expr:e1 COMP:op expr:e2                               {: RESULT = Condition.binop(e1,op,e2); :}
+    | BUNOP cond:c                                          {: RESULT = Condition.unop(c); :}
+    | cond:c1 BBINOP:op cond:c2                             {: RESULT = Condition.binop(c1,op,c2); :}
+    ;
+/* FIXME Yes, this grammar does not adhere to precedence of multiplication over addition                             */
+/* This is due to the fact that it is introduced with an ambiguous grammar in the lecture, and was never fixed */
+expr ::= IDENT:i                                            {: RESULT = Expression.ident(ixleft,i,ixright); :}
+    | INTCONST:c                                            {: RESULT = Expression.intconst(c); :}
+    | LPAR expr:e RPAR                                      {: RESULT = Expression.priority(e); :}
+    | BINOP expr:e                                          {: RESULT = Expression.unop(e); :}
+    | expr:e1 BINOP:op expr:e2                              {: RESULT = Expression.binop(e1,op,e2); :}
     ;
