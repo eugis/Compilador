@@ -1,0 +1,17 @@
+int i, j, k, t, n;
+{
+    i = 1;
+	j = 1;
+	k = 1;
+    n = read("Ingrese el número de la serie de fibonacci que desea:");
+	while(k < n){
+	    t = i + j;
+	    i = j;
+	    j = t;
+	}
+	write("El número de la serie ");
+	write(n);
+	write(" es: ");
+	write(j);
+	write("\n");
+}

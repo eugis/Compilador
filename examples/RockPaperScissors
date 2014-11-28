@@ -1,0 +1,47 @@
+int j1, j2;
+int i;
+string jugada1, jugada2;
+{
+    i = 0;
+    j1 = 0;
+    j2 = 0;
+
+    while(i < 3){
+        jugada1 = "";
+        jugada2 = "";
+        while((jugada1 != "scissors") || (jugada1 != "rock") || (jugada1 != "paper")){
+            jugada1 = read("Ingrese su jugada:");
+        }
+        while((jugada2 != "scissors") || (jugada2 != "rock") || (jugada2 != "paper")){
+            jugada2 = read("Ingrese su jugada:");
+        }
+        if(jugada1 != jugada2){
+            if((jugada1 == "scissors"){
+                if(jugada2 == "paper")
+                    j1 = j1 + 1;
+                else
+                    j2 = js + 1;
+            }
+            if((jugada1 == "rock"){
+                if(jugada2 == "scissors")
+                    j1 = j1 + 1;
+                else
+                    j2 = js + 1;
+            }
+            if((jugada1 == "paper"){
+                if(jugada2 == "rock")
+                    j1 = j1 + 1;
+                else
+                    j2 = js + 1;
+            }
+        }
+    }
+    if(j1 > j2)
+        write("El jugador 1 ganó");
+    else{
+        if(j2 > j1)
+            write("El jugador 2 ganó");
+        else
+            write("La partida terminó empatada");
+    }
+}
