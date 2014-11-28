@@ -1,6 +1,5 @@
 import com.judoscript.jamaica.BCELJavaClassCreator;
 import com.judoscript.jamaica.JavaClassCreator;
-import com.judoscript.jamaica.JavaClassCreatorException;
 
 import java.lang.reflect.Modifier;
 
@@ -10,7 +9,11 @@ import java.lang.reflect.Modifier;
 public class CodeGenerator extends ASTVisitor implements Constants {
     private JavaClassCreator creator;
     private String filename;
+    private Integer ifNumber;
+    private Integer whileNumber;
     public CodeGenerator(String filename) throws java.io.IOException, com.judoscript.jamaica.JavaClassCreatorException {
+        this.ifNumber = new Integer(1);
+        this.whileNumber = new Integer(1);
         this.filename = filename;
         this.creator = new BCELJavaClassCreator();
         creator.startClass(Modifier.PUBLIC, "AClass", null, null);
@@ -31,7 +34,6 @@ public class CodeGenerator extends ASTVisitor implements Constants {
     }
     public void postVisit(Statement.Assign i){
         try {
-            creator.addLocalVariable(i.lhs, "int", null);
             creator.inst_istore(i.lhs);
         }
         catch (Exception e) {}
@@ -41,40 +43,45 @@ public class CodeGenerator extends ASTVisitor implements Constants {
     }
     public void postVisit(Statement.Write i){
         try {
-            creator.inst_invokevirtual("System.out", "println", new String[]{"String"}, "void");
+            creator.inst_invokestatic("System.out", "println", new String[]{"String"}, "void");
         } catch (Exception e) {}
     }
-
+    public void postVisit(Statement.Read i) {
+        try {
+            creator.inst_invokestatic("System.in", "read", null, "int");
+            creator.inst_istore(i.lhs);
+        } catch (Exception e) {}
+    }
     public boolean preVisit(Statement.IfThenElse i){
-        /* TODO
-        i.condition.accept(this);
-        creator.inst_;
-        i.then.accept(this);
-        if (i.els!=null)
-            writer.println("JUMP IF"+end);
-        writer.print("IF"+e+":");
-        if(i.els!=null) {
-            i.els.accept(this);
-            writer.println("IF"+end+":");
-        }
+        try {
+            int e = ifNumber++;
+            int end = ifNumber++;
+            i.condition.accept(this);
+            creator.inst_ldc(0);
+            creator.inst_ifeq("IF " + e);
+            i.then.accept(this);
+            creator.inst_goto("ENDIF " + end);
+            creator.setLabel("IF " + ifNumber.toString());
+            if(i.els!=null) {
+                i.els.accept(this);
+            }
+            creator.setLabel("ENDIF " + end);
+        } catch (Exception e) {}
         return false;
-        */
-        return true;
     }
     public boolean preVisit(Statement.Loop i){
-        /* TODO
-        int loop = loopcounter++;
-        int loopexit = loopcounter++;
-        writer.println("//"+ i.cond+" ??" );
-        writer.print("L"+ loop +":" );
-        i.cond.accept(this);
-        writer.println("FJUMP L"+loopexit);
-        i.body.accept(this);
-        writer.println("JUMP L"+loop);
-        writer.print("L"+loopexit+":");
+        try {
+            int loop = whileNumber++;
+            int loopexit = whileNumber++;
+            creator.setLabel("WHILE " + loop);
+            i.condition.accept(this);
+            creator.inst_ldc(0);
+            creator.inst_ifeq("ENDWHILE " + loopexit);
+            i.body.accept(this);
+            creator.inst_goto("WHILE" + loop);
+            creator.setLabel("ENDWHILE " + loopexit);
+        } catch (Exception e) {}
         return false;
-        */
-        return true;
     }
     public boolean preVisit(Declaration d){
         return true;
@@ -89,22 +96,28 @@ public class CodeGenerator extends ASTVisitor implements Constants {
 
     }
     public void postVisit(Condition.BinCondition i){
-        //TODO
-        if (i.op==LEQ) ;
-        if (i.op==LE) ;
-        if (i.op==GTQ) ;
-        if (i.op==GT) ;
-        if (i.op==EQ) ;
-        if (i.op==NEQ) ;
+        try {
+            if (i.op == LE) ;
+            if (i.op == LEQ) {} //TODO
+            if (i.op == GTQ) ;
+            if (i.op == GT) ;
+            if (i.op == EQ) creator.inst_isub();
+            if (i.op == NEQ) {
+                creator.inst_isub();
+                creator.inst_ineg();
+            }
+        } catch (Exception e) {}
     }
     public void postVisit(Condition.BBinCondition i){
-        //TODO
-        if (i.op==AND) ;
-        if (i.op==OR) ;
+        try {
+            if (i.op == AND) creator.inst_iand();
+            if (i.op == OR) creator.inst_ior();
+        } catch (Exception e) {}
     }
     public void visit(Condition.BoolConst d){
         try {
-            creator.inst_ldc(d.b);
+            if (d.b) creator.inst_ldc(1);
+            else creator.inst_ldc(0);
         } catch (Exception e) {}
     }
     public void visit(Expression.Identifier d){
