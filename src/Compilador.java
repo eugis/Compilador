@@ -1,7 +1,8 @@
 import java_cup.runtime.ComplexSymbolFactory;
 
+import java_cup.runtime.ComplexSymbolFactory;
+
 import java.io.FileReader;
-import java.util.Arrays;
 
 public class Compilador {
     public static void main(String[] args) throws Exception {
