@@ -5,7 +5,7 @@ import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import java_cup.runtime.ComplexSymbolFactory;
 
 terminal         SEMICOLON, COMMA, LPAR, RPAR, BEGIN, END,IF, ELSE, WHILE, READ, WRITE, BUNOP, ASSIGN;
-terminal Integer TYPE, BINOP, UNOP, COMP, BBINOP, INTCONST;
+terminal Integer TYPE, BINOP, PBINOP, UNOP, COMP, BBINOP, INTCONST;
 terminal String  IDENT,STRINGCONST;
 terminal Boolean BOOLCONST;
 
@@ -18,7 +18,7 @@ non terminal Statement           stmt;
 non terminal Expression           expr;
 non terminal Condition           cond;
 
-precedence left ELSE, UNOP, BINOP, BUNOP, BBINOP;
+precedence left ELSE, UNOP, PBINOP, BINOP, BUNOP, BBINOP;
 
 program   ::=  decllist:d stmtlist:s                        {: RESULT = new Program(d,s); :}
     ;
@@ -54,9 +54,16 @@ cond ::= BOOLCONST:c                                        {: RESULT = Conditio
     ;
 /* FIXME Yes, this grammar does not adhere to precedence of multiplication over addition                             */
 /* This is due to the fact that it is introduced with an ambiguous grammar in the lecture, and was never fixed */
-expr ::= IDENT:i                                            {: RESULT = Expression.ident(ixleft,i,ixright); :}
+expr ::= term:t                                             {: RESULT = Expression.term(t); :}
+    | BINOP expr:e                                          {: RESULT = Expression.unop(e); :}
+    | expr:e BINOP:op term:t                                {: RESULT = Expression.binop(e,op,t); :}
+    ;
+
+term ::= term:t PBINOP:op fact:f                            {: RESULT = Expression.binop(t,op,f); :}
+    | fact:f                                                {: RESULT = Expression.fact(f)); :}
+    ;
+
+fact ::= IDENT:i                                            {: RESULT = Expression.ident(ixleft,i,ixright); :}
     | INTCONST:c                                            {: RESULT = Expression.intconst(c); :}
     | LPAR expr:e RPAR                                      {: RESULT = Expression.priority(e); :}
-    | BINOP expr:e                                          {: RESULT = Expression.unop(e); :}
-    | expr:e1 BINOP:op expr:e2                              {: RESULT = Expression.binop(e1,op,e2); :}
     ;

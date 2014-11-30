@@ -94,8 +94,8 @@ white_space = {new_line} | [ \t\f]
 "="               { return symbol("=",ASSIGN); }
 "+"               { return symbol("plus",BINOP, new Integer( PLUS ) ); }
 "-"               { return symbol("minus",BINOP, new Integer( MINUS ) ); }
-"*"               { return symbol("mult",BINOP, new Integer( MULT ) ); }
-"/"               { return symbol("div",BINOP, new Integer( DIV ) ); }
+"*"               { return symbol("mult",PBINOP, new Integer( MULT ) ); }
+"/"               { return symbol("div",PBINOP, new Integer( DIV ) ); }
 "%"               { return symbol("mod",BINOP, new Integer( MOD ) ); }
 "<="              { return symbol("leq",COMP,  new Integer( LEQ ) ); }
 ">="              { return symbol("gtq",COMP,  new Integer( GTQ ) ); }

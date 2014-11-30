@@ -72,4 +72,23 @@ public abstract class Expression implements Constants {
         public String toString()                { return i;	}
         public void accept(ASTVisitor v)   { v.visit(this);	}
     }
+    public static Term term(Expression e){	return new Term(e);    }
+    public static class Term extends Expression {
+        public Expression e;
+        public Term(Expression e){
+            this.e = e;
+        }
+        public String toString()                { return e.toString();	}
+        public void accept(ASTVisitor v)   { e.accept(v); }
+    }
+
+    public static Factor fact(Expression e){	return new Factor(e);    }
+    public static class Factor extends Expression {
+        public Expression e;
+        public Factor(Expression e){
+            this.e = e;
+        }
+        public String toString()                { return e.toString();	}
+        public void accept(ASTVisitor v)   { e.accept(v); }
+    }
 }
