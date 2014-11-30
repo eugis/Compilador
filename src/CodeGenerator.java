@@ -61,7 +61,7 @@ public class CodeGenerator extends ASTVisitor implements Constants {
             creator.inst_ifeq("IF " + e);
             i.then.accept(this);
             creator.inst_goto("ENDIF " + end);
-            creator.setLabel("IF " + ifNumber.toString());
+            creator.setLabel("IF " + e);
             if(i.els!=null) {
                 i.els.accept(this);
             }
