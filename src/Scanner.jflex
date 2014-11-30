@@ -15,8 +15,8 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 %{
     StringBuffer string = new StringBuffer();
     public Lexer(java.io.Reader in, ComplexSymbolFactory sf){
-	this(in);
-	symbolFactory = sf;
+	    this(in);
+	    symbolFactory = sf;
     }
     ComplexSymbolFactory symbolFactory;
 
@@ -44,12 +44,9 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
         new Location(yyline+1,yycolumn+1,yychar+1));
 %eofval}
 
-
-Ident = [a-zA-Z$_] [a-zA-Z0-9$_]*
-
 IntLiteral = 0 | [1-9][0-9]*
 
-BoolLiteral = true | false
+Ident = [a-zA-Z$_] [a-zA-Z0-9$_]*
 
 new_line = \r|\n|\r\n;
 
@@ -67,16 +64,14 @@ white_space = {new_line} | [ \t\f]
 "while"           { return symbol("while",WHILE); }
 "read"            { return symbol("read",READ); }
 "write"           { return symbol("write",WRITE); }
+"true"            { return symbol("Boolconst", BOOLCONST, new Boolean(true)); }
+"false"           { return symbol("Boolconst", BOOLCONST, new Boolean(false)); }
 
 /* names */
 {Ident}           { return symbol("Identifier",IDENT, yytext()); }
   
 /* string literals */
-
 /* char literal */
-
-/* bool literal */
-{BoolLiteral} { return symbol("Boolconst",BOOLCONST, new Boolean(Boolean.parseBool(yytext()))); }
 
 /* literals */
 {IntLiteral} { return symbol("Intconst",INTCONST, new Integer(Integer.parseInt(yytext()))); }
@@ -92,11 +87,11 @@ white_space = {new_line} | [ \t\f]
 "{"               { return symbol("{",BEGIN); }
 "}"               { return symbol("}",END); }
 "="               { return symbol("=",ASSIGN); }
-"+"               { return symbol("plus",BINOP, new Integer( PLUS ) ); }
-"-"               { return symbol("minus",BINOP, new Integer( MINUS ) ); }
-"*"               { return symbol("mult",BINOP, new Integer( MULT ) ); }
-"/"               { return symbol("div",BINOP, new Integer( DIV ) ); }
-"%"               { return symbol("mod",BINOP, new Integer( MOD ) ); }
+"+"               { return symbol("plus",BINOP2, new Integer( PLUS ) ); }
+"-"               { return symbol("minus",BINOP2, new Integer( MINUS ) ); }
+"*"               { return symbol("mult",BINOP1, new Integer( MULT ) ); }
+"/"               { return symbol("div",BINOP1, new Integer( DIV ) ); }
+"%"               { return symbol("mod",BINOP1, new Integer( MOD ) ); }
 "<="              { return symbol("leq",COMP,  new Integer( LEQ ) ); }
 ">="              { return symbol("gtq",COMP,  new Integer( GTQ ) ); }
 "=="              { return symbol("eq",COMP,  new Integer( EQ  ) ); }
