@@ -4,6 +4,18 @@ import java_cup.runtime.Symbol;
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import java_cup.runtime.ComplexSymbolFactory;
 
+parser code {:
+  public boolean syntaxErrors;
+
+
+  Lexer lexer;
+
+  public Parser(Lexer lex, ComplexSymbolFactory sf) {
+    super(lex,sf);
+    lexer = lex;
+  }
+:};
+
 terminal         SEMICOLON, COMMA, LPAR, RPAR, BEGIN, END,IF, ELSE, WHILE, READ, WRITE, BUNOP, ASSIGN;
 terminal Integer TYPE, BINOP1, BINOP2, COMP, BBINOP, INTCONST;
 terminal String  IDENT,STRINGCONST;
