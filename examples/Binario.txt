@@ -1,0 +1,11 @@
+int num, ans, i;
+
+num = read("Ingrese el número que desea pasar:");
+i = 1;
+while (num >= 2){
+    ans = ans + (num%2)*i;
+    num = num/2;
+    i=i*10;
+}
+write("El número en binario es: ");
+write(ans);
