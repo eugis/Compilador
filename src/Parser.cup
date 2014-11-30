@@ -18,7 +18,7 @@ non terminal Statement           stmt;
 non terminal Expression           expr;
 non terminal Condition           cond;
 
-precedence left ELSE, UNOP, PBINOP, BINOP, BUNOP, BBINOP;
+precedence left ELSE, UNOP, BINOP, BUNOP, BBINOP;
 
 program   ::=  decllist:d stmtlist:s                        {: RESULT = new Program(d,s); :}
     ;
@@ -54,13 +54,13 @@ cond ::= BOOLCONST:c                                        {: RESULT = Conditio
     ;
 /* FIXME Yes, this grammar does not adhere to precedence of multiplication over addition                             */
 /* This is due to the fact that it is introduced with an ambiguous grammar in the lecture, and was never fixed */
-expr ::= term:t                                             {: RESULT = Expression.term(t); :}
+expr ::= term:t                                             {: RESULT = t; :}
     | BINOP expr:e                                          {: RESULT = Expression.unop(e); :}
     | expr:e BINOP:op term:t                                {: RESULT = Expression.binop(e,op,t); :}
     ;
 
 term ::= term:t PBINOP:op fact:f                            {: RESULT = Expression.binop(t,op,f); :}
-    | fact:f                                                {: RESULT = Expression.fact(f)); :}
+    | fact:f                                                {: RESULT = f; :}
     ;
 
 fact ::= IDENT:i                                            {: RESULT = Expression.ident(ixleft,i,ixright); :}
