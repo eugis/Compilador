@@ -1,0 +1,30 @@
+int num, den, mod, i;
+boolean flag = true;
+
+num = 0;
+den = 0;
+i = 2;
+num = read("Ingrese el numerador:");
+while(den == 0){
+    den = read("Ingrese el denominador distinto de cero:");
+}
+if(num % den == 0){
+    write("La fracción simplificada es: 1");
+}else{
+    while(i < num && (i < den)){
+        if(num % i == 0)&&(den % i == 0){
+            num = num / i;
+            den = den / i;
+            i = 2;
+        }
+        i = i + 1;
+    }
+    write("La fracción simplificada es: ");
+    write(num);
+    write(" / ");
+    write(den);
+}
+
+
+
+

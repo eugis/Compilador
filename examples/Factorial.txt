@@ -1,6 +1,6 @@
 int num, result, i;
 
-{
+
     i = 1;
     result = 1;
     num = read("Ingrese el número:");
@@ -15,4 +15,3 @@ int num, result, i;
         write("El número ingresado no es válido");
     }
     write("\n");
-}

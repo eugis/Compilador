@@ -1,0 +1,11 @@
+int num, ans, i;
+
+num = read("Ingrese el número en binario que desee pasar:");
+i = 1;
+while (num >= 10){
+    ans = ans + (num%10)*i;
+    num = num/10;
+    i=i*2;
+}
+write("El número en decimal es: ");
+write(ans);
