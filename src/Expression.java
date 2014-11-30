@@ -6,6 +6,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 public abstract class Expression implements Constants {
     public Expression()                             {    }
     public abstract void accept(ASTVisitor v);
+    public boolean isConstant() {return false;}
     public static Priority priority(Expression e)   { return new Priority(e);  }
     public static class Priority extends Expression {
         public Expression e;
@@ -37,6 +38,11 @@ public abstract class Expression implements Constants {
         }
         public void accept(ASTVisitor v){
             if (!v.preVisit(this)) return;
+            if (e1.isConstant() && e2.isConstant()) {
+                new IntConst(((IntConst)e1).i, ((IntConst)e2).i, op).accept(v);
+                v.postVisit(this);
+                return;
+            }
             e1.accept(v);
             e2.accept(v);
             v.postVisit(this);
@@ -56,8 +62,24 @@ public abstract class Expression implements Constants {
     public static IntConst intconst(int i)      { return new IntConst(i);    }
     public static class IntConst extends Expression {
         public int i;
+        public IntConst(int i1, int i2, int op) {
+            switch (op) {
+                case PLUS: i = i1 + i2; break;
+                case MINUS: i = i1 - i2; break;
+                case DIV: i = i1 / i2; break;
+                case MULT: i = i1 * i2; break;
+                case MOD: i = i1 % i2; break;
+                default: break;
+            }
+        }
         public IntConst(int i)                  { this.i=i;	}
         public String toString()                { return i+"";	}
+
+        @Override
+        public boolean isConstant() {
+            return true;
+        }
+
         public void accept(ASTVisitor v)   { v.visit(this);	}
     }
     public static Identifier ident(Location l, String s, Location r){	return new Identifier(l,s,r);    }
