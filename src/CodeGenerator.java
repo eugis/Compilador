@@ -16,7 +16,7 @@ public class CodeGenerator extends ASTVisitor implements Constants {
         this.whileNumber = new Integer(1);
         this.filename = filename;
         this.creator = new BCELJavaClassCreator();
-        creator.startClass(Modifier.PUBLIC, "AClass", null, null);
+        creator.startClass(Modifier.PUBLIC, filename.split(".")[0], null, null);
         creator.startMethod(Modifier.PUBLIC | Modifier.STATIC, "main", new String[]{"java.lang.String[]"}, new String[]{"args"}, "void", null);
     }
     public static void main (String[] args) throws Exception {
@@ -97,15 +97,22 @@ public class CodeGenerator extends ASTVisitor implements Constants {
     }
     public void postVisit(Condition.BinCondition i){
         try {
-            if (i.op == LE) ;
-            if (i.op == LEQ) {} //TODO
-            if (i.op == GTQ) ;
-            if (i.op == GT) ;
-            if (i.op == EQ) creator.inst_isub();
-            if (i.op == NEQ) {
-                creator.inst_isub();
-                creator.inst_ineg();
+            int pos1 = whileNumber++;
+            int pos2 = whileNumber++;
+            switch (i.op) {
+                case EQ: creator.inst_ifeq("" + pos1); break;
+                case NEQ: creator.inst_ifne(""+pos1); break;
+                case GT: creator.inst_ifgt("" + pos1); break;
+                case GTQ: creator.inst_ifge("" + pos1); break;
+                case LE: creator.inst_iflt("" + pos1); break;
+                case LEQ: creator.inst_ifle("" + pos1); break;
+                default: throw new Exception();
             }
+            creator.inst_ldc(0);
+            creator.inst_goto(""+pos2);
+            creator.setLabel("" + pos1);
+            creator.inst_ldc(1);
+            creator.setLabel(""+pos2);
         } catch (Exception e) {}
     }
     public void postVisit(Condition.BBinCondition i){
