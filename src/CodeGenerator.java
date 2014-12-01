@@ -4,6 +4,7 @@ import com.judoscript.jamaica.JavaClassCreatorException;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.util.Scanner;
 
 /**
  * Created by santi698 on 27/11/14.
@@ -48,18 +49,22 @@ public class CodeGenerator extends ASTVisitor implements Constants {
             creator.inst_getstatic("java.lang.System", "out", "java.io.PrintStream");
             if (i.e != null) {
                 creator.inst_swap();
-                creator.inst_invokevirtual("java.io.PrintStream", "print", new String[]{"int"}, "void");
+                creator.inst_invokevirtual("java.io.PrintStream", "println", new String[]{"int"}, "void");
             }
             else {
                 creator.inst_ldc(i.s);
-                creator.inst_invokevirtual("java.io.PrintStream", "print", new String[]{"java.lang.String"}, "void");
+                creator.inst_invokevirtual("java.io.PrintStream", "println", new String[]{"java.lang.String"}, "void");
             }
         } catch (Exception e) {}
     }
-    public void postVisit(Statement.Read i) {
+    public void visit(Statement.Read i) {
         try {
+            creator.inst_new("java.util.Scanner");
+            creator.inst_dup();
             creator.inst_getstatic("java.lang.System", "in", "java.io.InputStream");
-            creator.inst_invokevirtual("java.io.InputStream", "read", null, "int");
+            creator.inst_invokespecial("java.util", "Scanner", new String[] {"java.io.InputStream"}, "void");
+            creator.inst_swap();
+            creator.inst_invokevirtual("java.util.Scanner", "nextInt", null, "int");
             creator.inst_istore(i.lhs);
         } catch (Exception e) {}
     }
@@ -69,7 +74,7 @@ public class CodeGenerator extends ASTVisitor implements Constants {
             int end = ifNumber++;
             i.condition.accept(this);
             creator.inst_ldc(0);
-            creator.inst_ifeq("IF " + e);
+            creator.inst_if_icmpeq("IF " + e);
             i.then.accept(this);
             creator.inst_goto("ENDIF " + end);
             creator.setLabel("IF " + e);
@@ -87,9 +92,9 @@ public class CodeGenerator extends ASTVisitor implements Constants {
             creator.setLabel("WHILE " + loop);
             i.condition.accept(this);
             creator.inst_ldc(1);
-            creator.inst_ifeq("ENDWHILE " + loopexit);
+            creator.inst_if_icmpeq("ENDWHILE " + loopexit);
             i.body.accept(this);
-            creator.inst_goto("WHILE" + loop);
+            creator.inst_goto("WHILE " + loop);
             creator.setLabel("ENDWHILE " + loopexit);
         } catch (Exception e) {}
         return false;
@@ -111,12 +116,12 @@ public class CodeGenerator extends ASTVisitor implements Constants {
             int pos1 = whileNumber++;
             int pos2 = whileNumber++;
             switch (i.op) {
-                case EQ: creator.inst_ifeq("" + pos1); break;
-                case NEQ: creator.inst_ifne(""+pos1); break;
-                case GT: creator.inst_ifgt("" + pos1); break;
-                case GTQ: creator.inst_ifge("" + pos1); break;
-                case LE: creator.inst_iflt("" + pos1); break;
-                case LEQ: creator.inst_ifle("" + pos1); break;
+                case EQ: creator.inst_if_icmpeq("" + pos1); break;
+                case NEQ: creator.inst_if_icmpne(""+pos1); break;
+                case GT: creator.inst_if_icmpgt("" + pos1); break;
+                case GTQ: creator.inst_if_icmpge("" + pos1); break;
+                case LE: creator.inst_if_icmplt("" + pos1); break;
+                case LEQ: creator.inst_if_icmple("" + pos1); break;
                 default: throw new Exception();
             }
             creator.inst_ldc(0);

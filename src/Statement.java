@@ -98,9 +98,7 @@ public abstract class Statement {
             v.visit(this);
         }
     }
-    public static Statement read(Location l,String s,Location r){
-        return new Read(l,s,r);
-    }
+    public static Statement read(Location l,String s,Location r){ return new Read(l,s,r); }
     public static Statement read(Location l,String ident,String s,Location r){
         return new Read(l,ident,s,r);
     }
