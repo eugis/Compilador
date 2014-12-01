@@ -1,6 +1,6 @@
     int x, y;
     y = 10;
-    x = 100;
+    x = read();
     if (x >= y) {
         write(1-y*y+1);
     } else {

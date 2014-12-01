@@ -62,7 +62,7 @@ public class CodeGenerator extends ASTVisitor implements Constants {
             creator.inst_new("java.util.Scanner");
             creator.inst_dup();
             creator.inst_getstatic("java.lang.System", "in", "java.io.InputStream");
-            creator.inst_invokespecial("java.util", "Scanner", new String[] {"java.io.InputStream"}, "void");
+            creator.inst_invokespecial("java.util.Scanner", "<init>", new String[] {"java.io.InputStream"}, "void");
             creator.inst_swap();
             creator.inst_invokevirtual("java.util.Scanner", "nextInt", null, "int");
             creator.inst_istore(i.lhs);
@@ -117,7 +117,7 @@ public class CodeGenerator extends ASTVisitor implements Constants {
             int pos2 = whileNumber++;
             switch (i.op) {
                 case EQ: creator.inst_if_icmpeq("" + pos1); break;
-                case NEQ: creator.inst_if_icmpne(""+pos1); break;
+                case NEQ: creator.inst_if_icmpne("" + pos1); break;
                 case GT: creator.inst_if_icmpgt("" + pos1); break;
                 case GTQ: creator.inst_if_icmpge("" + pos1); break;
                 case LE: creator.inst_if_icmplt("" + pos1); break;
