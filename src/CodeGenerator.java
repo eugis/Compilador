@@ -62,7 +62,7 @@ public class CodeGenerator extends ASTVisitor implements Constants {
             creator.inst_new("java.util.Scanner");
             creator.inst_dup();
             creator.inst_getstatic("java.lang.System", "in", "java.io.InputStream");
-            creator.inst_invokespecial("java.util.Scanner", "<init>", new String[] {"java.io.InputStream"}, "void");
+            creator.inst_invokespecial("java.util.Scanner", "<init>", new String[]{"java.io.InputStream"}, "void");
             creator.inst_swap();
             creator.inst_invokevirtual("java.util.Scanner", "nextInt", null, "int");
             creator.inst_istore(i.lhs);
@@ -91,12 +91,12 @@ public class CodeGenerator extends ASTVisitor implements Constants {
             int loopexit = whileNumber++;
             creator.setLabel("WHILE " + loop);
             i.condition.accept(this);
-            creator.inst_ldc(1);
+            creator.inst_ldc(0);
             creator.inst_if_icmpeq("ENDWHILE " + loopexit);
             i.body.accept(this);
             creator.inst_goto("WHILE " + loop);
             creator.setLabel("ENDWHILE " + loopexit);
-        } catch (Exception e) {}
+        } catch (Exception e) {System.out.println("ERROR");}
         return false;
     }
     public boolean preVisit(Declaration d){
