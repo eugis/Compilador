@@ -71,6 +71,7 @@ white_space = {new_line} | [ \t\f]
 {Ident}           { return symbol("Identifier",IDENT, yytext()); }
   
 /* string literals */
+
 /* char literal */
 
 /* literals */

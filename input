@@ -1,0 +1,8 @@
+    int x, y;
+    y = 10;
+    x = 5;
+    if (y >= x) {
+        write(1-y*y+1);
+    } else {
+        write("error");
+    }

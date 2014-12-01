@@ -26,10 +26,10 @@ public interface Sym {
   public static final int BUNOP = 13;
   public static final int ASSIGN = 14;
   public static final int RPAR = 5;
-  public static final int BINOP = 16;
+  public static final int BINOP2 = 17;
   public static final int LPAR = 4;
   public static final int BOOLCONST = 23;
-  public static final int UNOP = 17;
+  public static final int BINOP1 = 16;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
@@ -47,8 +47,8 @@ public interface Sym {
   "BUNOP",
   "ASSIGN",
   "TYPE",
-  "BINOP",
-  "UNOP",
+  "BINOP1",
+  "BINOP2",
   "COMP",
   "BBINOP",
   "INTCONST",

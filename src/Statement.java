@@ -84,7 +84,7 @@ public abstract class Statement {
             left=l;
             right=r;
         }
-        public Read(Location l, String ident, String mess,Location r){
+        public Read(Location l, String ident, String mess, Location r){
             lhs=ident;
             message=mess;
             left=l;

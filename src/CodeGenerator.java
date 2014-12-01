@@ -1,6 +1,8 @@
 import com.judoscript.jamaica.BCELJavaClassCreator;
 import com.judoscript.jamaica.JavaClassCreator;
+import com.judoscript.jamaica.JavaClassCreatorException;
 
+import java.io.IOException;
 import java.lang.reflect.Modifier;
 
 /**
@@ -16,18 +18,18 @@ public class CodeGenerator extends ASTVisitor implements Constants {
         this.whileNumber = new Integer(1);
         this.filename = filename;
         this.creator = new BCELJavaClassCreator();
-        creator.startClass(Modifier.PUBLIC, filename.split(".")[0], null, null);
+        creator.startClass(Modifier.PUBLIC, filename, null, null);
         creator.startMethod(Modifier.PUBLIC | Modifier.STATIC, "main", new String[]{"java.lang.String[]"}, new String[]{"args"}, "void", null);
-    }
-    public static void main (String[] args) throws Exception {
-        new CodeGenerator("AClass.class");
     }
     public void postVisit(Program p) {
         try {
-            creator.endClassToFile(filename);
+            creator.inst_return();
+            creator.endMethod();
+            creator.endClassToFile(filename + ".class");
+            System.out.println(filename + ".class");
         }
-        catch (Exception e) {;}
-
+        catch (JavaClassCreatorException e) {System.out.println(e.getLocalizedMessage());}
+        catch (IOException e) {System.out.println(e.getMessage());}
     }
     public boolean preVisit(Statement.Assign i){
         return true;
@@ -43,12 +45,21 @@ public class CodeGenerator extends ASTVisitor implements Constants {
     }
     public void postVisit(Statement.Write i){
         try {
-            creator.inst_invokestatic("System.out", "println", new String[]{"String"}, "void");
+            creator.inst_getstatic("java.lang.System", "out", "java.io.PrintStream");
+            if (i.e != null) {
+                creator.inst_swap();
+                creator.inst_invokevirtual("java.io.PrintStream", "print", new String[]{"int"}, "void");
+            }
+            else {
+                creator.inst_ldc(i.s);
+                creator.inst_invokevirtual("java.io.PrintStream", "print", new String[]{"java.lang.String"}, "void");
+            }
         } catch (Exception e) {}
     }
     public void postVisit(Statement.Read i) {
         try {
-            creator.inst_invokestatic("System.in", "read", null, "int");
+            creator.inst_getstatic("java.lang.System", "in", "java.io.InputStream");
+            creator.inst_invokevirtual("java.io.InputStream", "read", null, "int");
             creator.inst_istore(i.lhs);
         } catch (Exception e) {}
     }
@@ -75,7 +86,7 @@ public class CodeGenerator extends ASTVisitor implements Constants {
             int loopexit = whileNumber++;
             creator.setLabel("WHILE " + loop);
             i.condition.accept(this);
-            creator.inst_ldc(0);
+            creator.inst_ldc(1);
             creator.inst_ifeq("ENDWHILE " + loopexit);
             i.body.accept(this);
             creator.inst_goto("WHILE" + loop);

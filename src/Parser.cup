@@ -30,7 +30,9 @@ non terminal Statement           stmt;
 non terminal Expression           expr;
 non terminal Condition           cond;
 
-precedence left ELSE, BINOP1, BINOP2, BUNOP, BBINOP;
+precedence left BINOP2;
+precedence left BINOP1;
+precedence left ELSE, BUNOP, BBINOP;
 
 program   ::=  decllist:d stmtlist:s                        {: RESULT = new Program(d,s); :}
     ;
