@@ -2,6 +2,7 @@ int num, ans, i;
 
 num = read("Ingrese el número que desea pasar:");
 i = 1;
+ans = 0;
 while (num >= 2){
     ans = ans + (num%2)*i;
     num = num/2;

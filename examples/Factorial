@@ -4,14 +4,15 @@ int num, result, i;
     i = 1;
     result = 1;
     num = read("Ingrese el número:");
-    if(num >= 0){
-        while(i < num){
+    if(num > 0){
+        while(i <= num){
             result = result * i;
             i = i + 1;
         }
         write("El factorial calculado es:");
         write(result);
     }else{
-        write("El número ingresado no es válido");
+        if(num == 0) {write("El factorial calculado es: 1");}
+        else {write("El número ingresado no es válido");}
     }
     write("\n");

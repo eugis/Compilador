@@ -1,18 +1,16 @@
 int base, exponente, ans, i;
-boolean signo;
-signo = false;
 base = read("Ingrese la base:");
 exponente = read("Ingrese el exponente:");
 
 if(exponente == 0){
     if(base !=0){
         write("La potencia es 1");
+    }
     else
         write("Error: es una indeterminación");
 }else{
     if(exponente < 0){
-        signo = true;
-        exponente = -exponente;
+        exponente = - exponente;
     }
     i = 1;
     ans = base;

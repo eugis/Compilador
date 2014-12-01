@@ -4,10 +4,11 @@ int i, j, k, t, n;
 	j = 1;
 	k = 1;
     n = read("Ingrese el número de la serie de fibonacci que desea:");
-	while(k < n){
+	while(k < n-1){
 	    t = i + j;
 	    i = j;
 	    j = t;
+	    k = k + 1;
 	}
 	write("El número de la serie ");
 	write(n);

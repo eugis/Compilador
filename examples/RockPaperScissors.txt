@@ -1,5 +1,5 @@
 int j1, j2;
-int i;
+int i=1,j=2;
 string jugada1, jugada2;
 {
     i = 0;

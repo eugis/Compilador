@@ -1,15 +1,16 @@
 int n1, n2, aux;
 
-n1 = read("Ingrese el primer número:);
-n2 = read("Ingrese el segundo número:);
+n1 = read("Ingrese el primer numero:");
+n2 = read("Ingrese el segundo numero:");
 if(n1 < n2){
     aux = n1;
     n1 = n2;
     n2 = aux;
 }
 if(n1 == n2){
-    write("Los números son iguales");
-else{
+    write("Los numeros son iguales");
+}
+else {
     write(n2);
     write("es menor que ");
     write(n1);
