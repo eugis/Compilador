@@ -13,5 +13,6 @@
     <orderEntry type="library" name="jamaica" level="project" />
     <orderEntry type="library" name="asm" level="project" />
     <orderEntry type="library" name="bcel" level="project" />
+    <orderEntry type="library" name="asm-2.2.2" level="project" />
   </component>
 </module>

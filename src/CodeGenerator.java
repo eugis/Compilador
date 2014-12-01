@@ -1,4 +1,5 @@
-import com.judoscript.jamaica.BCELJavaClassCreator;
+//import com.judoscript.jamaica.BCELJavaClassCreator;
+import com.judoscript.jamaica.ASMJavaClassCreator;
 import com.judoscript.jamaica.JavaClassCreator;
 import com.judoscript.jamaica.JavaClassCreatorException;
 
@@ -14,7 +15,8 @@ public class CodeGenerator extends ASTVisitor implements Constants {
         this.ifNumber = 1;
         this.whileNumber = 1;
         this.filename = filename;
-        this.creator = new BCELJavaClassCreator();
+        //this.creator = new BCELJavaClassCreator();
+        this.creator = new ASMJavaClassCreator();
         creator.startClass(Modifier.PUBLIC, filename, null, null);
         creator.startMethod(Modifier.PUBLIC | Modifier.STATIC, "main", new String[]{"java.lang.String[]"}, new String[]{"args"}, "void", null);
     }
