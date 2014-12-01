@@ -4,19 +4,15 @@ import com.judoscript.jamaica.JavaClassCreatorException;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.util.Scanner;
 
-/**
- * Created by santi698 on 27/11/14.
- */
 public class CodeGenerator extends ASTVisitor implements Constants {
     private JavaClassCreator creator;
     private String filename;
     private Integer ifNumber;
     private Integer whileNumber;
     public CodeGenerator(String filename) throws java.io.IOException, com.judoscript.jamaica.JavaClassCreatorException {
-        this.ifNumber = new Integer(1);
-        this.whileNumber = new Integer(1);
+        this.ifNumber = 1;
+        this.whileNumber = 1;
         this.filename = filename;
         this.creator = new BCELJavaClassCreator();
         creator.startClass(Modifier.PUBLIC, filename, null, null);
@@ -39,7 +35,7 @@ public class CodeGenerator extends ASTVisitor implements Constants {
         try {
             creator.inst_istore(i.lhs);
         }
-        catch (Exception e) {}
+        catch (Exception e) {System.out.println(e.getLocalizedMessage());}
     }
     public boolean preVisit(Statement.Write i){
         return true;
@@ -55,19 +51,22 @@ public class CodeGenerator extends ASTVisitor implements Constants {
                 creator.inst_ldc(i.s);
                 creator.inst_invokevirtual("java.io.PrintStream", "println", new String[]{"java.lang.String"}, "void");
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
     }
     public void visit(Statement.Read i) {
         try {
+            if (i.message != null) {
+                Statement.write(i.message).accept(this);
+            }
             creator.inst_new("java.util.Scanner");
             creator.inst_dup();
             creator.inst_getstatic("java.lang.System", "in", "java.io.InputStream");
             creator.inst_invokespecial("java.util.Scanner", "<init>", new String[]{"java.io.InputStream"}, "void");
-            creator.inst_swap();
             creator.inst_invokevirtual("java.util.Scanner", "nextInt", null, "int");
             creator.inst_istore(i.lhs);
-        } catch (Exception e) {}
+        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
     }
+    /*FIXME throws an exception when executed at the same time that while or if*/
     public boolean preVisit(Statement.IfThenElse i){
         try {
             int e = ifNumber++;
@@ -82,9 +81,10 @@ public class CodeGenerator extends ASTVisitor implements Constants {
                 i.els.accept(this);
             }
             creator.setLabel("ENDIF " + end);
-        } catch (Exception e) {}
+        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
         return false;
     }
+    /*FIXME: throws an exception when executed */
     public boolean preVisit(Statement.Loop i){
         try {
             int loop = whileNumber++;
@@ -106,7 +106,7 @@ public class CodeGenerator extends ASTVisitor implements Constants {
         try {
             for (Expression.Identifier s : d.varlist)
                 creator.addLocalVariable(s.i, "int", null);
-        } catch (Exception e) {}
+        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
     }
     public void postVisit(Condition.BUnOp i){
 
@@ -125,33 +125,33 @@ public class CodeGenerator extends ASTVisitor implements Constants {
                 default: throw new Exception();
             }
             creator.inst_ldc(0);
-            creator.inst_goto(""+pos2);
+            creator.inst_goto("" + pos2);
             creator.setLabel("" + pos1);
             creator.inst_ldc(1);
-            creator.setLabel(""+pos2);
-        } catch (Exception e) {}
+            creator.setLabel("" + pos2);
+        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
     }
     public void postVisit(Condition.BBinCondition i){
         try {
             if (i.op == AND) creator.inst_iand();
             if (i.op == OR) creator.inst_ior();
-        } catch (Exception e) {}
+        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
     }
     public void visit(Condition.BoolConst d){
         try {
             if (d.b) creator.inst_ldc(1);
             else creator.inst_ldc(0);
-        } catch (Exception e) {}
+        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
     }
     public void visit(Expression.Identifier d){
         try {
             creator.inst_iload(d.i);
-        } catch (Exception e) {}
+        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
     }
     public void visit(Expression.IntConst d){
         try {
             creator.inst_ldc(d.i);
-        } catch (Exception e) {}
+        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
     }
     public void postVisit(Expression.Binex i){
         try {
@@ -160,11 +160,11 @@ public class CodeGenerator extends ASTVisitor implements Constants {
             if (i.op == MULT) creator.inst_imul();
             if (i.op == DIV) creator.inst_idiv();
             if (i.op == MOD) creator.inst_irem();
-        } catch (Exception e) {}
+        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
     }
     public void postVisit(Expression.Unex i){
         try {
             creator.inst_ineg();
-        } catch (Exception e) {}
+        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
     }
 }

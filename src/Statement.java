@@ -79,7 +79,7 @@ public abstract class Statement {
         public String lhs;
         public String message;
         public Location left,right;
-        public Read(Location l,String s,Location r){
+        public Read(Location l, String s, Location r){
             lhs = s;
             left=l;
             right=r;

@@ -69,7 +69,7 @@ cond ::= BOOLCONST:c                                        {: RESULT = Conditio
 expr ::= IDENT:i                                            {: RESULT = Expression.ident(ixleft,i,ixright); :}
     | INTCONST:c                                            {: RESULT = Expression.intconst(c); :}
     | LPAR expr:e RPAR                                      {: RESULT = Expression.priority(e); :}
-    | BINOP1 expr:e                                          {: RESULT = Expression.unop(e); :}
+    | BINOP2 expr:e                                          {: RESULT = Expression.unop(e); :}
     | expr:e1 BINOP1:op expr:e2                              {: RESULT = Expression.binop(e1,op,e2); :}
     | expr:e1 BINOP2:op expr:e2                              {: RESULT = Expression.binop(e1,op,e2); :}
     ;
