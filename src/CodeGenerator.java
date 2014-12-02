@@ -1,33 +1,22 @@
-//import com.judoscript.jamaica.BCELJavaClassCreator;
-import com.judoscript.jamaica.JavaClassCreator;
-import com.judoscript.jamaica.JavaClassCreatorException;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.GeneratorAdapter;
-import org.objectweb.asm.commons.LocalVariablesSorter;
 import org.objectweb.asm.commons.Method;
 
 import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
 public class CodeGenerator extends ASTVisitor implements Opcodes, Constants {
     private ClassWriter cw;
-    private LocalVariablesSorter lvs;
-    private FieldVisitor fv;
     private GeneratorAdapter mv;
-    private AnnotationVisitor av0;
     private Map<String, Integer> addressTable;
     private String className;
-    private int id = 1;
 
     public CodeGenerator(String className) throws java.io.IOException, com.judoscript.jamaica.JavaClassCreatorException {
         this.className = className;
         this.addressTable = new HashMap<String, Integer>();
-        this.cw= new ClassWriter(0);//ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        this.cw= new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
         cw.visit(V1_5,
                 ACC_PUBLIC + ACC_SUPER,
                 className,
@@ -81,22 +70,22 @@ public class CodeGenerator extends ASTVisitor implements Opcodes, Constants {
         mv.visitTypeInsn(NEW, "java/util/Scanner");
         mv.visitInsn(DUP);
         mv.visitFieldInsn(
-            Opcodes.GETSTATIC,
-            "java/lang/System",
-            "in",
-            "Ljava/io/InputStream;"
+                Opcodes.GETSTATIC,
+                "java/lang/System",
+                "in",
+                "Ljava/io/InputStream;"
         );
         mv.visitMethodInsn(INVOKESPECIAL,
-            "java/util/Scanner",
-            "<init>",
-            "(Ljava/io/InputStream;)V",
-            false
+                "java/util/Scanner",
+                "<init>",
+                "(Ljava/io/InputStream;)V",
+                false
         );
         mv.visitMethodInsn(INVOKEVIRTUAL,
-            "java/util/Scanner",
-            "nextInt",
-            "()I",
-            false
+                "java/util/Scanner",
+                "nextInt",
+                "()I",
+                false
         );
 
         mv.visitIntInsn(ISTORE, addressTable.get(i.lhs));
@@ -179,8 +168,5 @@ public class CodeGenerator extends ASTVisitor implements Opcodes, Constants {
     }
     public void postVisit(Expression.Unex i){
         mv.visitInsn(INEG);
-    }
-    public int getId () {
-        return id++;
     }
 }
