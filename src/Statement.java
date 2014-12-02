@@ -16,6 +16,8 @@ public abstract class Statement {
         }
         public void accept(ASTVisitor v){
             if (!v.preVisit(this)) return;
+            if (condition.isConstant() && !condition.getValue())
+                return;
             condition.accept(v);
             body.accept(v);
             v.postVisit(this);
@@ -38,10 +40,19 @@ public abstract class Statement {
         }
         public void accept(ASTVisitor v){
             if (!v.preVisit(this)) return;
-            condition.accept(v);
-            then.accept(v);
-            if (els!=null) els.accept(v);
-            v.postVisit(this);
+            if (condition.isConstant()) {
+                if (condition.getValue()) {
+                    then.accept(v);
+                }
+                else if (els != null) {
+                    els.accept(v);
+                }
+            } else {
+                condition.accept(v);
+                then.accept(v);
+                if (els != null) els.accept(v);
+                v.postVisit(this);
+            }
         }
     }
     public static Statement ifthenelse(Condition c, Statement t, Statement e){

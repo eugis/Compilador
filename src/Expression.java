@@ -7,6 +7,7 @@ public abstract class Expression implements Constants {
     public Expression()                             {    }
     public abstract void accept(ASTVisitor v);
     public boolean isConstant() {return false;}
+    public abstract int getValue();
     public static Priority priority(Expression e)   { return new Priority(e);  }
     public static class Priority extends Expression {
         public Expression e;
@@ -16,6 +17,14 @@ public abstract class Expression implements Constants {
             if (!v.preVisit(this)) return;
             e.accept(v);
             v.postVisit(this);
+        }
+        @Override
+        public boolean isConstant() {
+            return e.isConstant();
+        }
+        @Override
+        public int getValue() {
+            return e.getValue();
         }
     }
     public static Binex binop(Expression e1, int op, Expression e2){ return new Binex(e1,op,e2);  }
@@ -29,23 +38,42 @@ public abstract class Expression implements Constants {
         }
         public String toString(){
             String operator=null;
-            if (op==Constants.PLUS)  operator = "+";
-            if (op==Constants.MINUS) operator = "-";
-            if (op==Constants.MULT)  operator = "*";
-            if (op==Constants.DIV)   operator = "/";
-            if (op==Constants.MOD)   operator = "\\%";
+            switch (op) {
+                case PLUS: operator = "+"; break;
+                case MINUS: operator = "-"; break;
+                case MULT:  operator = "*"; break;
+                case DIV:   operator = "/"; break;
+                case MOD:   operator = "\\%"; break;
+            }
+
             return e1 + ""+operator + e2;
         }
         public void accept(ASTVisitor v){
             if (!v.preVisit(this)) return;
-            if (e1.isConstant() && e2.isConstant()) {
-                new IntConst(((IntConst)e1).i, ((IntConst)e2).i, op).accept(v);
-                v.postVisit(this);
+            if (isConstant()) {
+                Expression.intconst(getValue()).accept(v);
                 return;
+            } else {
+                e1.accept(v);
+                e2.accept(v);
             }
-            e1.accept(v);
-            e2.accept(v);
             v.postVisit(this);
+        }
+        @Override
+        public boolean isConstant() {
+            return e1.isConstant() && e2.isConstant();
+        }
+        @Override
+        public int getValue() {
+            switch (op) {
+                case PLUS: return e1.getValue() + e2.getValue();
+                case MINUS: return e1.getValue() - e2.getValue();
+                case DIV: return e1.getValue() / e2.getValue();
+                case MOD: return e1.getValue() % e2.getValue();
+                case MULT: return e1.getValue() * e2.getValue();
+                default:
+                    throw new RuntimeException();
+            }
         }
     }
     public static Unex unop(Expression e)             { return new Unex(e);   }
@@ -58,6 +86,16 @@ public abstract class Expression implements Constants {
             e1.accept(v);
             v.postVisit(this);
         }
+        @Override
+        public boolean isConstant() {
+            return e1.isConstant();
+        }
+        @Override
+        public int getValue() {
+            return -e1.getValue();
+        }
+
+
     }
     public static IntConst intconst(int i)      { return new IntConst(i);    }
     public static class IntConst extends Expression {
@@ -79,6 +117,10 @@ public abstract class Expression implements Constants {
         public boolean isConstant() {
             return true;
         }
+        @Override
+        public int getValue() {
+            return i;
+        }
 
         public void accept(ASTVisitor v)   { v.visit(this);	}
     }
@@ -93,5 +135,14 @@ public abstract class Expression implements Constants {
         }
         public String toString()                { return i;	}
         public void accept(ASTVisitor v)   { v.visit(this);	}
+        @Override
+        public boolean isConstant() {
+            return false;
+        }
+        @Override
+        public int getValue() {
+            throw new RuntimeException();
+        }
+
     }
 }

@@ -1,12 +1,16 @@
 /**
  * Created by santi698 on 27/11/14.
  */
-public abstract class Condition {
+public abstract class Condition implements Constants {
     public String toTexString(){
         return toString();
     }
     public Condition(){
     }
+    public boolean isConstant() {
+        return false;
+    }
+    public abstract boolean getValue();
     public static class Priority extends Condition {
         public Condition c;
         public Priority(Condition c){
@@ -19,6 +23,14 @@ public abstract class Condition {
             if (!v.preVisit(this)) return;
             c.accept(v);
             v.postVisit(this);
+        }
+        @Override
+        public boolean isConstant() {
+            return c.isConstant();
+        }
+        @Override
+        public boolean getValue() {
+            return c.getValue();
         }
 
     }
@@ -40,17 +52,44 @@ public abstract class Condition {
             return c1 + ""+operator + c2;
         }
         public String toTexString(){
-            String operator=null;
-            if (op==Constants.AND)  operator = "\\&\\&";
-            if (op==Constants.OR)  operator = "||";
+            String operator;
+            switch (op) {
+                case AND:
+                    operator = "\\&\\&";
+                    break;
+                case OR:
+                    operator = "||";
+                    break;
+                default:
+                    throw new RuntimeException();
+            }
             return c1 + ""+operator + c2;
         }
 
         public void accept(ASTVisitor v){
             if (!v.preVisit(this))return;
-            c1.accept(v);
-            c2.accept(v);
-            v.postVisit(this);
+            if (isConstant()) {
+                Condition.boolconst(getValue()).accept(v);
+            } else {
+                c1.accept(v);
+                c2.accept(v);
+                v.postVisit(this);
+            }
+        }
+        @Override
+        public boolean isConstant() {
+            return c1.isConstant() && c2.isConstant();
+        }
+        @Override
+        public boolean getValue() {
+            switch (op) {
+                case AND:
+                    return c1.getValue() && c2.getValue();
+                case OR:
+                    return c1.getValue() || c2.getValue();
+                default:
+                    throw new RuntimeException();
+            }
         }
 
     }
@@ -66,21 +105,64 @@ public abstract class Condition {
             this.op=op;
         }
         public String toString(){
-            String operator=null;
-            if (op==Constants.LEQ)  operator = "<=";
-            if (op==Constants.GTQ)  operator = ">=";
-            if (op==Constants.GT)  operator = ">";
-            if (op==Constants.LE)  operator = "<";
-            if (op==Constants.NEQ) operator = "!=";
-            if (op==Constants.EQ) operator = "==";
+            String operator = null;
+            switch (op) {
+                case LEQ:
+                    operator = "<=";
+                    break;
+                case GTQ:
+                    operator = ">=";
+                    break;
+                case GT:
+                    operator = ">";
+                    break;
+                case LE:
+                    operator = "<";
+                    break;
+                case NEQ:
+                    operator = "!=";
+                    break;
+                case EQ:
+                    operator = "==";
+                    break;
+            }
             return e1 + ""+operator + e2;
         }
         public void accept(ASTVisitor v){
             if (!v.preVisit(this))return;
-            e1.accept(v);
-            e2.accept(v);
-            v.postVisit(this);
+            if (isConstant()) {
+                boolconst(getValue()).accept(v);
+            } else {
+                e1.accept(v);
+                e2.accept(v);
+                v.postVisit(this);
+            }
         }
+
+        @Override
+        public boolean isConstant() {
+            return e1.isConstant() && e2.isConstant();
+        }
+        @Override
+        public boolean getValue() {
+            switch (op) {
+                case LEQ:
+                    return e1.getValue() <= e2.getValue();
+                case GTQ:
+                    return e1.getValue() >= e2.getValue();
+                case GT:
+                    return e1.getValue() > e2.getValue();
+                case LE:
+                    return e1.getValue() < e2.getValue();
+                case EQ:
+                    return e1.getValue() == e2.getValue();
+                case NEQ:
+                    return e1.getValue() != e2.getValue();
+                default:
+                    throw new RuntimeException();
+            }
+        }
+
     }
 
     public static Condition binop(Expression e1, int op, Expression e2){
@@ -99,6 +181,15 @@ public abstract class Condition {
             c.accept(v);
             v.postVisit(this);
         }
+        @Override
+        public boolean isConstant() {
+            return c.isConstant();
+        }
+        @Override
+        public boolean getValue() {
+            return !c.getValue();
+        }
+
 
     }
     public static Condition unop(Condition c){
@@ -116,6 +207,15 @@ public abstract class Condition {
         public void accept(ASTVisitor v){
             v.visit(this);
         }
+        @Override
+        public boolean isConstant() {
+            return true;
+        }
+        @Override
+        public boolean getValue() {
+            return b;
+        }
+
     }
     public static Condition boolconst(boolean b){
         return new BoolConst(b);
