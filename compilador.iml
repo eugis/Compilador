@@ -14,5 +14,6 @@
     <orderEntry type="library" name="asm" level="project" />
     <orderEntry type="library" name="bcel" level="project" />
     <orderEntry type="library" name="asm-2.2.2" level="project" />
+    <orderEntry type="library" name="asm-5.0.3 (2)" level="project" />
   </component>
 </module>

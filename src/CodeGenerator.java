@@ -1,172 +1,186 @@
 //import com.judoscript.jamaica.BCELJavaClassCreator;
-import com.judoscript.jamaica.ASMJavaClassCreator;
 import com.judoscript.jamaica.JavaClassCreator;
 import com.judoscript.jamaica.JavaClassCreatorException;
+import org.objectweb.asm.*;
+import org.objectweb.asm.commons.GeneratorAdapter;
+import org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.commons.Method;
 
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Map;
 
-public class CodeGenerator extends ASTVisitor implements Constants {
-    private JavaClassCreator creator;
-    private String filename;
-    private Integer ifNumber;
-    private Integer whileNumber;
-    public CodeGenerator(String filename) throws java.io.IOException, com.judoscript.jamaica.JavaClassCreatorException {
-        this.ifNumber = 1;
-        this.whileNumber = 1;
-        this.filename = filename;
-        //this.creator = new BCELJavaClassCreator();
-        this.creator = new ASMJavaClassCreator();
-        creator.startClass(Modifier.PUBLIC, filename, null, null);
-        creator.startMethod(Modifier.PUBLIC | Modifier.STATIC, "main", new String[]{"java.lang.String[]"}, new String[]{"args"}, "void", null);
+public class CodeGenerator extends ASTVisitor implements Opcodes, Constants {
+    private ClassWriter cw;
+    private LocalVariablesSorter lvs;
+    private FieldVisitor fv;
+    private GeneratorAdapter mv;
+    private AnnotationVisitor av0;
+    private Map<String, Integer> addressTable;
+    private String className;
+    private int id = 1;
+
+    public CodeGenerator(String className) throws java.io.IOException, com.judoscript.jamaica.JavaClassCreatorException {
+        this.className = className;
+        this.addressTable = new HashMap<String, Integer>();
+        this.cw= new ClassWriter(0);//ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        cw.visit(V1_5,
+                ACC_PUBLIC + ACC_SUPER,
+                className,
+                null,
+                "java/lang/Object",
+                null);
+
+        cw.visitSource(className, null);
+        Method m = Method.getMethod("void main (String[])");
+        mv = new GeneratorAdapter(ACC_PUBLIC + ACC_STATIC, m, null, null, cw);
     }
     public void postVisit(Program p) {
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(10, 10);
+        mv.visitEnd();
+        mv.visitMaxs(100, 100);
+        mv.visitEnd();
+        cw.visitEnd();
         try {
-            creator.inst_return();
-            creator.endMethod();
-            creator.endClassToFile(filename + ".class");
-            System.out.println(filename + ".class");
+            //convert array of bytes into file
+            FileOutputStream fileOuputStream = new FileOutputStream(className + ".class");
+            fileOuputStream.write(cw.toByteArray());
+            fileOuputStream.close();
+        } catch (java.io.IOException e) {
+            System.out.println("Error en la grabación del archivo.");
         }
-        catch (JavaClassCreatorException e) {System.out.println(e.getLocalizedMessage());}
-        catch (IOException e) {System.out.println(e.getMessage());}
     }
     public boolean preVisit(Statement.Assign i){
         return true;
     }
     public void postVisit(Statement.Assign i){
-        try {
-            creator.inst_istore(i.lhs);
-        }
-        catch (Exception e) {System.out.println(e.getLocalizedMessage());}
+        mv.storeLocal(addressTable.get(i.lhs));
     }
     public boolean preVisit(Statement.Write i){
         return true;
     }
     public void postVisit(Statement.Write i){
-        try {
-            creator.inst_getstatic("java.lang.System", "out", "java.io.PrintStream");
-            if (i.e != null) {
-                creator.inst_swap();
-                creator.inst_invokevirtual("java.io.PrintStream", "println", new String[]{"int"}, "void");
-            }
-            else {
-                creator.inst_ldc(i.s);
-                creator.inst_invokevirtual("java.io.PrintStream", "println", new String[]{"java.lang.String"}, "void");
-            }
-        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
+        mv.getStatic(Type.getType(System.class), "out", Type.getType(PrintStream.class));
+        if (i.e != null) {
+            mv.visitInsn(SWAP);
+            mv.invokeVirtual(Type.getType(PrintStream.class), Method.getMethod("void println (int)"));
+        } else {
+            mv.push(i.s);
+            mv.invokeVirtual(Type.getType(PrintStream.class), Method.getMethod("void println (String)"));
+        }
     }
     public void visit(Statement.Read i) {
-        try {
-            if (i.message != null) {
-                Statement.write(i.message).accept(this);
-            }
-            creator.inst_new("java.util.Scanner");
-            creator.inst_dup();
-            creator.inst_getstatic("java.lang.System", "in", "java.io.InputStream");
-            creator.inst_invokespecial("java.util.Scanner", "<init>", new String[]{"java.io.InputStream"}, "void");
-            creator.inst_invokevirtual("java.util.Scanner", "nextInt", null, "int");
-            creator.inst_istore(i.lhs);
-        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
+        if (i.message != null) {
+            Statement.write(i.message).accept(this);
+        }
+        mv.visitTypeInsn(NEW, "java/util/Scanner");
+        mv.visitInsn(DUP);
+        mv.visitFieldInsn(
+            Opcodes.GETSTATIC,
+            "java/lang/System",
+            "in",
+            "Ljava/io/InputStream;"
+        );
+        mv.visitMethodInsn(INVOKESPECIAL,
+            "java/util/Scanner",
+            "<init>",
+            "(Ljava/io/InputStream;)V",
+            false
+        );
+        mv.visitMethodInsn(INVOKEVIRTUAL,
+            "java/util/Scanner",
+            "nextInt",
+            "()I",
+            false
+        );
+
+        mv.visitIntInsn(ISTORE, addressTable.get(i.lhs));
     }
-    /*FIXME throws an exception when executed at the same time that while or if*/
     public boolean preVisit(Statement.IfThenElse i){
-        try {
-            int e = ifNumber++;
-            int end = ifNumber++;
+            Label l1 = new Label();
+            Label l2 = new Label();
             i.condition.accept(this);
-            creator.inst_ldc(0);
-            creator.inst_if_icmpeq("IF " + e);
+            mv.visitJumpInsn(IFEQ, l1);
             i.then.accept(this);
-            creator.inst_goto("ENDIF " + end);
-            creator.setLabel("IF " + e);
-            if(i.els!=null) {
+            mv.visitJumpInsn(GOTO, l2);
+            mv.visitLabel(l1);
+            if (i.els != null)
                 i.els.accept(this);
-            }
-            creator.setLabel("ENDIF " + end);
-        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
+            mv.visitLabel(l2);
         return false;
     }
-    /*FIXME: throws an exception when executed */
     public boolean preVisit(Statement.Loop i){
-        try {
-            int loop = whileNumber++;
-            int loopexit = whileNumber++;
-            creator.setLabel("WHILE " + loop);
-            i.condition.accept(this);
-            creator.inst_ldc(0);
-            creator.inst_if_icmpeq("ENDWHILE " + loopexit);
-            i.body.accept(this);
-            creator.inst_goto("WHILE " + loop);
-            creator.setLabel("ENDWHILE " + loopexit);
-        } catch (Exception e) {System.out.println("ERROR");}
+        Label conditionLabel = new Label();
+        Label endLabel = new Label();
+        mv.visitLabel(conditionLabel);
+        i.condition.accept(this);
+        mv.visitJumpInsn(IFEQ, endLabel);
+        i.body.accept(this);
+        mv.visitJumpInsn(GOTO, conditionLabel);
+        mv.visitLabel(endLabel);
         return false;
     }
     public boolean preVisit(Declaration d){
         return true;
     }
     public void postVisit(Declaration d){
-        try {
-            for (Expression.Identifier s : d.varlist)
-                creator.addLocalVariable(s.i, "int", null);
-        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
+        for (Expression.Identifier s : d.varlist) {
+            addressTable.put(s.i, mv.newLocal(Type.INT_TYPE));
+        }
     }
     public void postVisit(Condition.BUnOp i){
 
     }
     public void postVisit(Condition.BinCondition i){
-        try {
-            int pos1 = whileNumber++;
-            int pos2 = whileNumber++;
-            switch (i.op) {
-                case EQ: creator.inst_if_icmpeq("" + pos1); break;
-                case NEQ: creator.inst_if_icmpne("" + pos1); break;
-                case GT: creator.inst_if_icmpgt("" + pos1); break;
-                case GTQ: creator.inst_if_icmpge("" + pos1); break;
-                case LE: creator.inst_if_icmplt("" + pos1); break;
-                case LEQ: creator.inst_if_icmple("" + pos1); break;
-                default: throw new Exception();
-            }
-            creator.inst_ldc(0);
-            creator.inst_goto("" + pos2);
-            creator.setLabel("" + pos1);
-            creator.inst_ldc(1);
-            creator.setLabel("" + pos2);
-        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
+        Label l1 = new Label();
+        Label l2 = new Label();
+        switch (i.op) {
+            case EQ: mv.visitJumpInsn(IF_ICMPEQ, l1); break;
+            case NEQ: mv.visitJumpInsn(IF_ICMPNE, l1); break;
+            case GT: mv.visitJumpInsn(IF_ICMPGT, l1); break;
+            case GTQ: mv.visitJumpInsn(IF_ICMPGE, l1); break;
+            case LE: mv.visitJumpInsn(IF_ICMPLT, l1); break;
+            case LEQ: mv.visitJumpInsn(IF_ICMPLE, l1); break;
+            default: break;
+        }
+        mv.visitInsn(ICONST_0);
+        mv.visitJumpInsn(GOTO, l2);
+        mv.visitLabel(l1);
+        mv.visitInsn(ICONST_1);
+        mv.visitLabel(l2);
     }
     public void postVisit(Condition.BBinCondition i){
-        try {
-            if (i.op == AND) creator.inst_iand();
-            if (i.op == OR) creator.inst_ior();
-        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
+        if (i.op == AND) mv.visitInsn(IAND);
+        if (i.op == OR) mv.visitInsn(IOR);
     }
     public void visit(Condition.BoolConst d){
-        try {
-            if (d.b) creator.inst_ldc(1);
-            else creator.inst_ldc(0);
-        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
+        if (d.b) mv.visitInsn(ICONST_1);
+        else mv.visitInsn(ICONST_0);
     }
     public void visit(Expression.Identifier d){
-        try {
-            creator.inst_iload(d.i);
-        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
+        mv.loadLocal(addressTable.get(d.i));
     }
     public void visit(Expression.IntConst d){
-        try {
-            creator.inst_ldc(d.i);
-        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
+        mv.visitLdcInsn(d.i);
     }
     public void postVisit(Expression.Binex i){
-        try {
-            if (i.op == PLUS) creator.inst_iadd();
-            if (i.op == MINUS) creator.inst_isub();
-            if (i.op == MULT) creator.inst_imul();
-            if (i.op == DIV) creator.inst_idiv();
-            if (i.op == MOD) creator.inst_irem();
-        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
+        switch (i.op) {
+            case PLUS: mv.visitInsn(IADD); break;
+            case MINUS: mv.visitInsn(ISUB); break;
+            case MULT: mv.visitInsn(IMUL); break;
+            case DIV: mv.visitInsn(IDIV); break;
+            case MOD: mv.visitInsn(IREM); break;
+        }
     }
     public void postVisit(Expression.Unex i){
-        try {
-            creator.inst_ineg();
-        } catch (Exception e) {System.out.println(e.getLocalizedMessage());}
+        mv.visitInsn(INEG);
+    }
+    public int getId () {
+        return id++;
     }
 }
