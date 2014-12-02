@@ -17,6 +17,7 @@ public class Compilador {
         }
         try {
             parse_tree = (Program) parser_obj.parse().value;
+            parse_tree.accept(new DeadStoreDeleterVisitor());
             parse_tree.accept(new CodeGenerator(className));
         } catch (Exception e) {throw e;}
     }

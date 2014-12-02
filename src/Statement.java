@@ -4,6 +4,7 @@
 import java.util.List;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 public abstract class Statement {
+    public Statement.Compound parent;
     public static class Loop extends Statement {
         public Statement body;
         public Condition condition;
@@ -159,6 +160,9 @@ public abstract class Statement {
         }
         public void accept(ASTVisitor v){
             v.visit(this);
+        }
+        public String toString() {
+            return "";
         }
     }
     public static Statement empty(){
