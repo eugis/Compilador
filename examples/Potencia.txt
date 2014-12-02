@@ -1,4 +1,5 @@
-int base, exponente, ans, i;
+int base, exponente, ans, i, flag;
+flag = 0;
 base = read("Ingrese la base:");
 exponente = read("Ingrese el exponente:");
 
@@ -11,11 +12,22 @@ if(exponente == 0){
 }else{
     if(exponente < 0){
         exponente = - exponente;
+        flag = 1;
     }
     i = 1;
     ans = base;
-    while(i < exponente)
+    while(i < exponente){
         ans = ans * base;
+        i = i + 1;
+    }
     write("La potencia es");
-    write(ans);
+    if(flag == 1){
+        if(base == 0)
+            write("Error: No es posible dividir por cero");
+        else{
+            write("1 / ");
+            write(ans);
+        }
+    }else
+        write(ans);
 }
