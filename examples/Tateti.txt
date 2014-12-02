@@ -13,109 +13,110 @@ casillero6 = 0;
 casillero7 = 0;
 casillero8 = 0;
 casillero9 = 0;
+jugadas = 0;
+finished = 0;
+turno = 1;
 
-    jugadas = 0;
-    finished = 0;
-    while((jugadas < 9) && (finished == 0) ){
-        valid = 0;
-        if (turno == 1)
-            turno = 2;
-        else
-            turno = 1;
+while((jugadas < 9) && (finished == 0) ){
+    valid = 0;
+    if (turno == 1)
+        turno = 2;
+    else
+        turno = 1;
 
-        while(valid == 0){
-            write("Jugador ");
-            write(turno);
-            write("ingrese su jugada.");
-            f = read("Fila:");
-            c = read("Columna:");
-            if(f == 1){
-                if(c == 1){
-                    if(casillero1 == 0){
-                        casillero1 = turno;
-                        valid = 1;
-                    }
-                }
-                if(c == 2){
-                    if(casillero2 == 0){
-                        casillero2 = turno;
-                        valid = 1;
-                    }
-                }
-                if(c == 3){
-                    if(casillero3 == 0){
-                        casillero3 = turno;
-                        valid = 1;
-                    }
+    while(valid == 0){
+        write("Jugador ");
+        write(turno);
+        write("ingrese su jugada.");
+        f = read("Fila:");
+        c = read("Columna:");
+        if(f == 1){
+            if(c == 1){
+                if(casillero1 == 0){
+                    casillero1 = turno;
+                    valid = 1;
                 }
             }
-            if(f == 2){
-                if(c == 1){
-                    if(casillero4 == 0){
-                        casillero4 = turno;
-                        valid = 1;
-                    }
-                }
-                if(c == 2){
-                    if(casillero5 == 0){
-                        casillero5 = turno;
-                        valid = 1;
-                    }
-                }
-                if(c == 3){
-                    if(casillero6 == 0){
-                        casillero6 = turno;
-                        valid = 1;
-                    }
+            if(c == 2){
+                if(casillero2 == 0){
+                    casillero2 = turno;
+                    valid = 1;
                 }
             }
-            if(f == 3){
-                if(c == 1){
-                    if(casillero7 == 0){
-                        casillero7 = turno;
-                        valid = 1;
-                    }
-                }
-                if(c == 2){
-                    if(casillero8 == 0){
-                        casillero8 = turno;
-                        valid = 1;
-                    }
-                }
-                if(c == 3){
-                    if(casillero9 == 0){
-                        casillero9 = turno;
-                        valid = 1;
-                    }
+            if(c == 3){
+                if(casillero3 == 0){
+                    casillero3 = turno;
+                    valid = 1;
                 }
             }
         }
-        jugadas = jugadas + 1;
-        if ((casillero1 + casillero2 + casillero3 == 3) ||
-            (casillero4 + casillero5 + casillero6 == 3) ||
-            (casillero7 + casillero8 + casillero9 == 3) ||
-            (casillero1 + casillero4 + casillero7 == 3) ||
-            (casillero2 + casillero5 + casillero8 == 3) ||
-            (casillero3 + casillero6 + casillero9 == 3) ||
-            (casillero1 + casillero5 + casillero9 == 3) ||
-            (casillero7 + casillero5 + casillero3 == 3)
-        ){
-            write("El jugador uno ganó");
-            finished = 1;
-        }
-        else{
-            if ((casillero1 + casillero2 + casillero3 == 6) ||
-                (casillero4 + casillero5 + casillero6 == 6) ||
-                (casillero7 + casillero8 + casillero9 == 6) ||
-                (casillero1 + casillero4 + casillero7 == 6) ||
-                (casillero2 + casillero5 + casillero8 == 6) ||
-                (casillero3 + casillero6 + casillero9 == 6) ||
-                (casillero1 + casillero5 + casillero9 == 6) ||
-                (casillero7 + casillero5 + casillero3 == 6)
-               ){
-                    write("El jugador dos ganó");
-                    finished = 1;
+        if(f == 2){
+            if(c == 1){
+                if(casillero4 == 0){
+                    casillero4 = turno;
+                    valid = 1;
                 }
+            }
+            if(c == 2){
+                if(casillero5 == 0){
+                    casillero5 = turno;
+                    valid = 1;
+                }
+            }
+            if(c == 3){
+                if(casillero6 == 0){
+                    casillero6 = turno;
+                    valid = 1;
+                }
+            }
         }
-
+        if(f == 3){
+            if(c == 1){
+                if(casillero7 == 0){
+                    casillero7 = turno;
+                    valid = 1;
+                }
+            }
+            if(c == 2){
+                if(casillero8 == 0){
+                    casillero8 = turno;
+                    valid = 1;
+                }
+            }
+            if(c == 3){
+                if(casillero9 == 0){
+                    casillero9 = turno;
+                    valid = 1;
+                }
+            }
+        }
     }
+    jugadas = jugadas + 1;
+    if ((casillero1 + casillero2 + casillero3 == 3) ||
+        (casillero4 + casillero5 + casillero6 == 3) ||
+        (casillero7 + casillero8 + casillero9 == 3) ||
+        (casillero1 + casillero4 + casillero7 == 3) ||
+        (casillero2 + casillero5 + casillero8 == 3) ||
+        (casillero3 + casillero6 + casillero9 == 3) ||
+        (casillero1 + casillero5 + casillero9 == 3) ||
+        (casillero7 + casillero5 + casillero3 == 3)
+    ){
+        write("El jugador uno ganó");
+        finished = 1;
+    }
+    else{
+        if ((casillero1 + casillero2 + casillero3 == 6) ||
+            (casillero4 + casillero5 + casillero6 == 6) ||
+            (casillero7 + casillero8 + casillero9 == 6) ||
+            (casillero1 + casillero4 + casillero7 == 6) ||
+            (casillero2 + casillero5 + casillero8 == 6) ||
+            (casillero3 + casillero6 + casillero9 == 6) ||
+            (casillero1 + casillero5 + casillero9 == 6) ||
+            (casillero7 + casillero5 + casillero3 == 6)
+           ){
+                write("El jugador dos ganó");
+                finished = 1;
+            }
+    }
+
+}

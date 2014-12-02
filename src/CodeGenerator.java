@@ -1,9 +1,11 @@
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
+import org.objectweb.asm.util.CheckClassAdapter;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,11 +32,10 @@ public class CodeGenerator extends ASTVisitor implements Opcodes, Constants {
     }
     public void postVisit(Program p) {
         mv.visitInsn(RETURN);
-        mv.visitMaxs(10, 10);
-        mv.visitEnd();
-        mv.visitMaxs(100, 100);
+        mv.visitMaxs(1, 1);
         mv.visitEnd();
         cw.visitEnd();
+        //CheckClassAdapter.verify(new ClassReader(cw.toByteArray()), true, new PrintWriter(System.out));
         try {
             //convert array of bytes into file
             FileOutputStream fileOuputStream = new FileOutputStream(className + ".class");
