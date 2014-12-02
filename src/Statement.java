@@ -16,6 +16,8 @@ public abstract class Statement {
         }
         public void accept(ASTVisitor v){
             if (!v.preVisit(this)) return;
+            if (condition.isConstant() && !condition.getValue())
+                return;
             condition.accept(v);
             body.accept(v);
             v.postVisit(this);
