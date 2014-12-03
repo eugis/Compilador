@@ -1,12 +1,20 @@
-int num, ans, i;
-
+int num, ans, i, aux;
+int error;
 num = read("Ingrese el número en binario que desee pasar:");
 i = 1;
 ans = 0;
-while (num >= 1){
-    ans = ans + (num%10)*i;
+aux = 0;
+error = 0;
+while (num >= 1 && error == 0){
+    aux = num%10;
+    if(aux != 0 && aux != 1)
+        error = 1;
+    ans = ans + aux*i;
     num = num/10;
     i=i*2;
 }
-write("El número en decimal es: ");
-write(ans);
+if(error == 0){
+    write("El número en decimal es: ");
+    write(ans);
+}else
+    write("El numero no está en binario");

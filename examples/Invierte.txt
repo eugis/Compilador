@@ -1,0 +1,17 @@
+int n, ans, aux, signo;
+ans = 0;
+signo = 0;
+n = read("Ingrese el numero que desea invertir:");
+if(n < 0){
+    signo = 1;
+    n = - n;
+}
+while (n != 0){
+    aux = n%10;
+    ans = ans * 10 + aux;
+    n = (n - aux)/10;
+}
+if(signo == 1)
+    ans = - ans;
+write("El numero invertido es:");
+write(ans);
