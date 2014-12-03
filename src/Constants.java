@@ -16,4 +16,11 @@ public interface Constants {
     public static int AND = 11;
     public static int OR = 12;
     public static int INTTYPE = 13;
+    public static int ADDONE = 14;
+    public static int SUBONE = 15;
+    public static int ADDASS = 16;
+    public static int SUBASS = 17;
+    public static int DIVASS = 18;
+    public static int MULASS = 19;
+    public static int MODASS = 20;
 }

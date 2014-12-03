@@ -152,6 +152,28 @@ public abstract class Statement {
             v.postVisit(this);
         }
     }
+    public static Statement assunop(String id, int op) { return new AssUnop(id, op);}
+    public static class AssUnop extends Statement {
+        public String id;
+        public int op;
+        public AssUnop(String id, int op) {
+            this.id = id;
+            this.op = op;
+        }
+        public void accept (ASTVisitor v) { v.visit(this);}
+    }
+    public static Statement assbinop(String id, int op, Expression e) {return new AssBinOp(id, op, e);}
+    public static class AssBinOp extends Statement {
+        public String id;
+        public int op;
+        public Expression e;
+        public AssBinOp(String id, int op, Expression e) {
+            this.id = id;
+            this.op = op;
+            this.e = e;
+        }
+        public void accept (ASTVisitor v) {v.visit(this);}
+    }
     public static Statement compound(List<Statement> l){
         return new Compound(l);
     }

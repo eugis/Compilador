@@ -166,6 +166,51 @@ public class CodeGenerator extends ASTVisitor implements Opcodes, Constants {
         }
     }
     public void postVisit(Expression.Unex i){
-        mv.visitInsn(INEG);
+        switch (i.op) {
+            case MINUS:
+                mv.visitInsn(INEG);
+                break;
+            case PLUS: break;
+            case ADDONE:
+                String id = ((Expression.Identifier) i.e1).i;
+                mv.loadLocal(addressTable.get(id));
+                mv.visitInsn(DUP);
+                mv.visitInsn(ICONST_1);
+                mv.visitInsn(IADD);
+                mv.storeLocal(addressTable.get(id));
+                break;
+            case SUBONE:
+                id = ((Expression.Identifier) i.e1).i;
+                mv.loadLocal(addressTable.get(id));
+                mv.visitInsn(DUP);
+                mv.visitInsn(ICONST_1);
+                mv.visitInsn(ISUB);
+                mv.storeLocal(addressTable.get(id));
+                break;
+            default: throw new RuntimeException();
+        }
+
+    }
+    public void visit (Statement.AssUnop i) {
+        switch (i.op) {
+            case ADDONE:
+                mv.loadLocal(addressTable.get(i.id));
+                mv.visitInsn(ICONST_1);
+                mv.visitInsn(IADD);
+                mv.storeLocal(addressTable.get(i.id));
+                break;
+            case SUBONE:
+                mv.loadLocal(addressTable.get(i.id));
+                mv.visitInsn(ICONST_1);
+                mv.visitInsn(ISUB);
+                mv.storeLocal(addressTable.get(i.id));
+                break;
+            default: throw new RuntimeException();
+        }
+
+    }
+    public void visit (Statement.AssBinOp i) {
+        Expression.binop(Expression.ident(null, i.id, null), i.op - 16, i.e).accept(this);
+        mv.storeLocal(addressTable.get(i.id));
     }
 }

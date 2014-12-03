@@ -76,11 +76,25 @@ public abstract class Expression implements Constants {
             }
         }
     }
-    public static Unex unop(Expression e)             { return new Unex(e);   }
+    public static Unex unop(Expression e, int op)             { return new Unex(e, op);   }
+    public static Unex unop(String id, int op)             { return new Unex(new Identifier(null,id,null), op);   }
     public static class Unex extends Expression {
         public Expression e1;
-        public Unex(Expression e1)                    { this.e1=e1; 	 }
-        public String toString()                { return "-"+e1; }
+        public int op;
+        public Unex(Expression e1, int op) {
+            this.e1=e1;
+            this.op = op;
+        }
+        public String toString() {
+            switch (op) {
+                case SUBONE: break;
+                case ADDONE: break;
+                case MINUS: break;
+                case PLUS: break;
+                default: throw new RuntimeException();
+            }
+            return "-"+e1;
+        }
         public void accept(ASTVisitor v)   {
             if (!v.preVisit(this)) return;
             e1.accept(v);
@@ -92,7 +106,13 @@ public abstract class Expression implements Constants {
         }
         @Override
         public int getValue() {
-            return -e1.getValue();
+            switch (op) {
+                case SUBONE:
+                case ADDONE:
+                case PLUS: return e1.getValue();
+                case MINUS: return -e1.getValue();
+                default: throw new RuntimeException();
+            }
         }
 
 

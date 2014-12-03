@@ -88,12 +88,19 @@ white_space = {new_line} | [ \t\f]
 "{"               { return symbol("{",BEGIN); }
 "}"               { return symbol("}",END); }
 "="               { return symbol("=",ASSIGN); }
-"+"               { return symbol("plus",BINOP2, new Integer( PLUS ) ); }
-"-"               { return symbol("minus",BINOP2, new Integer( MINUS ) ); }
-"*"               { return symbol("mult",BINOP1, new Integer( MULT ) ); }
-"/"               { return symbol("div",BINOP1, new Integer( DIV ) ); }
-"%"               { return symbol("mod",BINOP1, new Integer( MOD ) ); }
-"<="              { return symbol("leq",COMP,  new Integer( LEQ ) ); }
+"+"               { return symbol("plus",BINOP2, new Integer(PLUS)); }
+"-"               { return symbol("minus",BINOP2, new Integer(MINUS)); }
+"--"              { return symbol("subone", UNOP, new Integer (SUBONE)); }
+"++"              { return symbol("addone", UNOP, new Integer (ADDONE)); }
+"+="              { return symbol("plusequal", ASSBINOP, new Integer(ADDASS)); }
+"-="              { return symbol("minusequal", ASSBINOP, new Integer(SUBASS)); }
+"/="              { return symbol("divequal", ASSBINOP, new Integer(DIVASS)); }
+"*="              { return symbol("mulequal", ASSBINOP, new Integer(MULASS)); }
+"%="              { return symbol("modequal", ASSBINOP, new Integer(MODASS)); }
+"*"               { return symbol("mult",BINOP1, new Integer(MULT)); }
+"/"               { return symbol("div",BINOP1, new Integer(DIV)); }
+"%"               { return symbol("mod",BINOP1, new Integer(MOD)); }
+"<="              { return symbol("leq",COMP,  new Integer(LEQ)); }
 ">="              { return symbol("gtq",COMP,  new Integer( GTQ ) ); }
 "=="              { return symbol("eq",COMP,  new Integer( EQ  ) ); }
 "!="              { return symbol("neq",COMP,  new Integer( NEQ ) ); }

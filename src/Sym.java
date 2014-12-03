@@ -7,15 +7,16 @@
 public interface Sym {
   /* terminals */
   public static final int READ = 11;
-  public static final int IDENT = 21;
+  public static final int ASSBINOP = 18;
+  public static final int IDENT = 23;
   public static final int SEMICOLON = 2;
   public static final int ELSE = 9;
-  public static final int STRINGCONST = 22;
-  public static final int COMP = 18;
+  public static final int STRINGCONST = 24;
+  public static final int COMP = 20;
   public static final int WHILE = 10;
   public static final int END = 7;
-  public static final int INTCONST = 20;
-  public static final int BBINOP = 19;
+  public static final int INTCONST = 22;
+  public static final int BBINOP = 21;
   public static final int IF = 8;
   public static final int WRITE = 12;
   public static final int BEGIN = 6;
@@ -28,8 +29,9 @@ public interface Sym {
   public static final int RPAR = 5;
   public static final int BINOP2 = 17;
   public static final int LPAR = 4;
-  public static final int BOOLCONST = 23;
+  public static final int BOOLCONST = 25;
   public static final int BINOP1 = 16;
+  public static final int UNOP = 19;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
@@ -49,6 +51,8 @@ public interface Sym {
   "TYPE",
   "BINOP1",
   "BINOP2",
+  "ASSBINOP",
+  "UNOP",
   "COMP",
   "BBINOP",
   "INTCONST",

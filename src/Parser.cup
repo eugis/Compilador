@@ -17,7 +17,7 @@ parser code {:
 :};
 
 terminal         SEMICOLON, COMMA, LPAR, RPAR, BEGIN, END,IF, ELSE, WHILE, READ, WRITE, BUNOP, ASSIGN;
-terminal Integer TYPE, BINOP1, BINOP2, COMP, BBINOP, INTCONST;
+terminal Integer TYPE, BINOP1, BINOP2, ASSBINOP, UNOP, COMP, BBINOP, INTCONST;
 terminal String  IDENT,STRINGCONST;
 terminal Boolean BOOLCONST;
 
@@ -50,6 +50,8 @@ identlist  ::= identlist:il COMMA IDENT:i                   {: il.add(Expression
     ;
 stmt ::= SEMICOLON                                          {: RESULT = Statement.empty(); :}
     | BEGIN stmtlist:sl END                                 {: RESULT = Statement.compound(sl); :}
+    | IDENT:i UNOP:op                                        {: RESULT = Statement.assunop(i, op); :}
+    | IDENT:i ASSBINOP:op expr:e                            {: RESULT = Statement.assbinop(i, op, e); :}
     | IDENT:i ASSIGN expr:e SEMICOLON                       {: RESULT = Statement.assign(ixleft,i,e,ixright); :}
     | IDENT:i ASSIGN READ LPAR RPAR SEMICOLON               {: RESULT = Statement.read(ixleft,i,ixright); :}
     | IDENT:i ASSIGN READ LPAR STRINGCONST:s RPAR SEMICOLON {: RESULT = Statement.read(ixleft,i,s,ixright); :}
@@ -69,7 +71,8 @@ cond ::= BOOLCONST:c                                        {: RESULT = Conditio
 expr ::= IDENT:i                                            {: RESULT = Expression.ident(ixleft,i,ixright); :}
     | INTCONST:c                                            {: RESULT = Expression.intconst(c); :}
     | LPAR expr:e RPAR                                      {: RESULT = Expression.priority(e); :}
-    | BINOP2 expr:e                                          {: RESULT = Expression.unop(e); :}
+    | BINOP2:op expr:e                                      {: RESULT = Expression.unop(e, op); :}
+    | IDENT:i UNOP:op                                        {: RESULT = Expression.unop(i, op); :}
     | expr:e1 BINOP1:op expr:e2                              {: RESULT = Expression.binop(e1,op,e2); :}
     | expr:e1 BINOP2:op expr:e2                              {: RESULT = Expression.binop(e1,op,e2); :}
     ;

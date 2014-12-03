@@ -23,6 +23,9 @@ public abstract class ASTVisitor {
     }
     public void visit(Statement.Empty e){
     }
+    public void visit(Statement.AssUnop u) {}
+    public void visit(Statement.AssBinOp u) {}
+
     public boolean preVisit(Statement.Compound i){
         return true;
     }
