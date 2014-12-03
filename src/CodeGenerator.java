@@ -15,7 +15,7 @@ public class CodeGenerator extends ASTVisitor implements Opcodes, Constants {
     private Map<String, Integer> addressTable;
     private String className;
 
-    public CodeGenerator(String className) throws java.io.IOException, com.judoscript.jamaica.JavaClassCreatorException {
+    public CodeGenerator(String className) {
         this.className = className;
         this.addressTable = new HashMap<String, Integer>();
         this.cw= new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);

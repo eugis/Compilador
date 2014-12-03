@@ -41,7 +41,7 @@
     </target>
     <target name="dist" depends="compile" description="generate the distribution" >
         <mkdir dir="${dist}/lib"/>
-        <jar jarfile="${dist}/lib/MyProject-${DSTAMP}.jar" basedir="${build}" manifest="manifest.mf"/>
+        <jar jarfile="${dist}/lib/compilador.jar" basedir="${build}" manifest="manifest.mf"/>
         <copy todir="${dist}/lib">
             <fileset dir="./lib/">
                 <exclude name="junit*" />
