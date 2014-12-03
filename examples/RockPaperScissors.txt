@@ -1,40 +1,39 @@
 int j1, j2;
-int i=1,j=2;
-string jugada1, jugada2;
+int i;
+int jugada1, jugada2;
 {
     i = 0;
     j1 = 0;
     j2 = 0;
 
     while(i < 3){
-        jugada1 = "";
-        jugada2 = "";
-        while((jugada1 != "scissors") || (jugada1 != "rock") || (jugada1 != "paper")){
-            jugada1 = read("Ingrese su jugada:");
-        }
-        while((jugada2 != "scissors") || (jugada2 != "rock") || (jugada2 != "paper")){
-            jugada2 = read("Ingrese su jugada:");
-        }
+        jugada1 = 0;
+        while(jugada1 < 1 || jugada1 > 3)
+            jugada1 = read("Jugador 1 ingrese el numero correspondiente a la jugada: 1-Scissors 2-Rock 3-Paper");
+        jugada2 = 0;
+        while(jugada2 < 1 || jugada2 > 3)
+                    jugada2 = read("Jugador 2 ingrese el numero correspondiente a la jugada: 1-Scissors 2-Rock 3-Paper");
         if(jugada1 != jugada2){
-            if((jugada1 == "scissors"){
-                if(jugada2 == "paper")
+            if(jugada1 == 1){
+                if(jugada2 == 3)
                     j1 = j1 + 1;
                 else
-                    j2 = js + 1;
+                    j2 = j2 + 1;
             }
-            if((jugada1 == "rock"){
-                if(jugada2 == "scissors")
+            if(jugada1 == 2){
+                if(jugada2 == 1)
                     j1 = j1 + 1;
                 else
-                    j2 = js + 1;
+                    j2 = j2 + 1;
             }
-            if((jugada1 == "paper"){
-                if(jugada2 == "rock")
+            if(jugada1 == 3){
+                if(jugada2 == 2)
                     j1 = j1 + 1;
                 else
-                    j2 = js + 1;
+                    j2 = j2 + 1;
             }
         }
+        i = i + 1;
     }
     if(j1 > j2)
         write("El jugador 1 ganó");
