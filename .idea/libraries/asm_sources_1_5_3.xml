@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="asm-sources-1.5.3">
+    <CLASSES />
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/com.springsource.org.objectweb.asm-sources-1.5.3.jar!/" />
+    </SOURCES>
+  </library>
+</component>
