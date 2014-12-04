@@ -5,86 +5,70 @@ public abstract class ASTVisitor {
     public boolean preVisit(Program p){
         return true;
     }
-    public void postVisit(Program p){
-    }
-    public void visit(Declaration d){
-    }
+    public void postVisit(Program p){}
+    public void visit(Declaration d){}
     public boolean preVisit(Statement.Assign i){
         return true;
     }
-    public void postVisit(Statement.Assign i){
-    }
+    public void postVisit(Statement.Assign i) {}
     public boolean preVisit(Statement.Write i){
         return true;
     }
-    public void postVisit(Statement.Write i){
-    }
-    public void visit(Statement.Read i){
-    }
-    public void visit(Statement.Empty e){
-    }
+    public void postVisit(Statement.Write i) {}
+    public void visit(Statement.Read i) {}
+    public void visit(Statement.Empty e) {}
     public void visit(Statement.AssUnop u) {}
     public void visit(Statement.AssBinOp u) {}
-
+    public void visit(Statement.ForLoop u) {}
+    public boolean preVisit(Statement.ForLoop u) {return true;}
+    public void postVisit(Statement.ForLoop u) {}
+    public void visit (Statement.Break b) {}
+    public void visit (Statement.Continue c) {}
     public boolean preVisit(Statement.Compound i){
         return true;
     }
-    public void postVisit(Statement.Compound i){
-    }
+    public void postVisit(Statement.Compound i){}
     public boolean preVisit(Statement.IfThenElse i){
         return true;
     }
-    public void postVisit(Statement.IfThenElse i){
-    }
+    public void postVisit(Statement.IfThenElse i){}
     public boolean preVisit(Statement.Loop i){
         return true;
     }
-    public void postVisit(Statement.Loop i){
-    }
+    public void postVisit(Statement.Loop i){}
     public boolean preVisit(Declaration d){
         return true;
     }
-    public void postVisit(Declaration d){
-    }
+    public void postVisit(Declaration d){}
     public boolean preVisit(Condition.BUnOp i){
         return true;
     }
-    public void postVisit(Condition.BUnOp i){
-    }
+    public void postVisit(Condition.BUnOp i){}
     public boolean preVisit(Condition.BBinCondition i){
         return true;
     }
-    public void postVisit(Condition.BBinCondition i){
-    }
+    public void postVisit(Condition.BBinCondition i){}
     public boolean preVisit(Condition.BinCondition i){
         return true;
     }
-    public void postVisit(Condition.BinCondition i){
-    }
-    public void visit(Condition.BoolConst d){
-    }
-    public void visit(Expression.Identifier d){
-    }
-    public void visit(Expression.IntConst d){
-    }
+    public void postVisit(Condition.BinCondition i){}
+    public void visit(Condition.BoolConst d){}
+    public void visit(Expression.Identifier d){}
+    public void visit(Expression.IntConst d){}
     public boolean preVisit(Expression.Priority i){
         return true;
     }
-    public void postVisit(Expression.Priority i){
-    }
+    public void postVisit(Expression.Priority i){}
     public boolean preVisit(Condition.Priority i){
         return true;
     }
-    public void postVisit(Condition.Priority i){
-    }
+    public void postVisit(Condition.Priority i){}
     public boolean preVisit(Expression.Binex i){
         return true;
     }
-    public void postVisit(Expression.Binex i){
-    }
+    public void postVisit(Expression.Binex i){}
     public boolean preVisit(Expression.Unex i){
         return true;
     }
-    public void postVisit(Expression.Unex i){
-    }
+    public void postVisit(Expression.Unex i){}
 }

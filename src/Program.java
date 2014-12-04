@@ -1,6 +1,3 @@
-/**
- * Created by santi698 on 27/11/14.
- */
 import java.util.List;
 public class Program extends Statement.Compound {
     public List<Declaration> ld;

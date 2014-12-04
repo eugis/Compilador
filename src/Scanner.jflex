@@ -62,6 +62,9 @@ white_space = {new_line} | [ \t\f]
 "if"              { return symbol("if",IF); }
 "else"            { return symbol("else",ELSE); }
 "while"           { return symbol("while",WHILE); }
+"for"             { return symbol("for", FOR); }
+"break"           { return symbol("break", BREAK); }
+"continue"        { return symbol("continue", CONTINUE); }
 "read"            { return symbol("read",READ); }
 "write"           { return symbol("write",WRITE); }
 "true"            { return symbol("Boolconst", BOOLCONST, new Boolean(true)); }

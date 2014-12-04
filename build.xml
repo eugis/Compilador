@@ -53,5 +53,9 @@
     <target name="clean" description="clean up" >
         <delete dir="${build}"/>
         <delete dir="${dist}"/>
+        <delete file="src/Sym.java"/>
+        <delete file="src/Parser.java"/>
+        <delete file="src/Lexer.java"/>
+        <delete file="manifest.mf"/>
     </target>
 </project>

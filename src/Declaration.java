@@ -1,7 +1,5 @@
-/**
- * Created by santi698 on 27/11/14.
- */
 import java.util.List;
+
 public class Declaration {
     public List<Expression.Identifier> varlist;
     public Declaration(List<Expression.Identifier> l){

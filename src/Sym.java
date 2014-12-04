@@ -7,31 +7,34 @@
 public interface Sym {
   /* terminals */
   public static final int READ = 11;
-  public static final int ASSBINOP = 18;
-  public static final int IDENT = 23;
+  public static final int ASSBINOP = 21;
+  public static final int CONTINUE = 17;
+  public static final int IDENT = 26;
   public static final int SEMICOLON = 2;
   public static final int ELSE = 9;
-  public static final int STRINGCONST = 24;
-  public static final int COMP = 20;
+  public static final int STRINGCONST = 27;
+  public static final int COMP = 23;
   public static final int WHILE = 10;
   public static final int END = 7;
-  public static final int INTCONST = 22;
-  public static final int BBINOP = 21;
+  public static final int INTCONST = 25;
+  public static final int BBINOP = 24;
   public static final int IF = 8;
   public static final int WRITE = 12;
   public static final int BEGIN = 6;
-  public static final int TYPE = 15;
+  public static final int TYPE = 18;
   public static final int COMMA = 3;
   public static final int EOF = 0;
+  public static final int BREAK = 16;
   public static final int error = 1;
   public static final int BUNOP = 13;
   public static final int ASSIGN = 14;
   public static final int RPAR = 5;
-  public static final int BINOP2 = 17;
+  public static final int FOR = 15;
+  public static final int BINOP2 = 20;
   public static final int LPAR = 4;
-  public static final int BOOLCONST = 25;
-  public static final int BINOP1 = 16;
-  public static final int UNOP = 19;
+  public static final int BOOLCONST = 28;
+  public static final int BINOP1 = 19;
+  public static final int UNOP = 22;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
@@ -48,6 +51,9 @@ public interface Sym {
   "WRITE",
   "BUNOP",
   "ASSIGN",
+  "FOR",
+  "BREAK",
+  "CONTINUE",
   "TYPE",
   "BINOP1",
   "BINOP2",

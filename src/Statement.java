@@ -1,6 +1,3 @@
-/**
- * Created by santi698 on 27/11/14.
- */
 import java.util.List;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 public abstract class Statement {
@@ -23,6 +20,30 @@ public abstract class Statement {
             body.accept(v);
             v.postVisit(this);
         }
+    }
+    public static Statement forloop(Statement.Assign s, Condition c, Statement f, Statement body) {return new ForLoop(s,c,f,body);}
+    public static class ForLoop extends Statement {
+        Statement.Assign s;
+        Statement f;
+        Statement body;
+        Condition c;
+
+        public ForLoop(Assign s, Condition c, Statement f, Statement body) {
+            this.s = s;
+            this.f = f;
+            this.body = body;
+            this.c = c;
+        }
+
+        public void accept (ASTVisitor v) {
+            if (!v.preVisit(this)) return;
+            if (c.isConstant() && !c.getValue())
+                return;
+            s.accept(v);
+            c.accept(v);
+            v.postVisit(this);
+        }
+
     }
     public static Statement whileloop(Condition c, Statement s){
         return new Loop(c,s);
@@ -160,6 +181,7 @@ public abstract class Statement {
             this.id = id;
             this.op = op;
         }
+
         public void accept (ASTVisitor v) { v.visit(this);}
     }
     public static Statement assbinop(String id, int op, Expression e) {return new AssBinOp(id, op, e);}
@@ -173,6 +195,18 @@ public abstract class Statement {
             this.e = e;
         }
         public void accept (ASTVisitor v) {v.visit(this);}
+    }
+    public static Statement breakst() { return new Break();}
+    public static class Break extends Statement{
+        public void accept(ASTVisitor v) {
+            v.visit(this);
+        }
+    }
+    public static Statement continuest() {return new Continue();}
+    public static class Continue extends Statement {
+        public void accept(ASTVisitor v) {
+            v.visit(this);
+        }
     }
     public static Statement compound(List<Statement> l){
         return new Compound(l);

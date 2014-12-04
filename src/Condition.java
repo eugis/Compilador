@@ -1,10 +1,4 @@
-/**
- * Created by santi698 on 27/11/14.
- */
 public abstract class Condition implements Constants {
-    public String toTexString(){
-        return toString();
-    }
     public Condition(){
     }
     public boolean isConstant() {
@@ -49,20 +43,6 @@ public abstract class Condition implements Constants {
             String operator=null;
             if (op==Constants.AND)  operator = "&&";
             if (op==Constants.OR)  operator = "||";
-            return c1 + ""+operator + c2;
-        }
-        public String toTexString(){
-            String operator;
-            switch (op) {
-                case AND:
-                    operator = "\\&\\&";
-                    break;
-                case OR:
-                    operator = "||";
-                    break;
-                default:
-                    throw new RuntimeException();
-            }
             return c1 + ""+operator + c2;
         }
 

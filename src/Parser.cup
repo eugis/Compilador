@@ -16,7 +16,8 @@ parser code {:
   }
 :};
 
-terminal         SEMICOLON, COMMA, LPAR, RPAR, BEGIN, END,IF, ELSE, WHILE, READ, WRITE, BUNOP, ASSIGN;
+terminal         SEMICOLON, COMMA, LPAR, RPAR, BEGIN, END, IF;
+terminal ELSE, WHILE, READ, WRITE, BUNOP, ASSIGN, FOR, BREAK, CONTINUE;
 terminal Integer TYPE, BINOP1, BINOP2, ASSBINOP, UNOP, COMP, BBINOP, INTCONST;
 terminal String  IDENT,STRINGCONST;
 terminal Boolean BOOLCONST;
@@ -32,7 +33,7 @@ non terminal Condition           cond;
 
 precedence left BINOP2;
 precedence left BINOP1;
-precedence left ELSE, BUNOP, BBINOP;
+precedence left ELSE, BUNOP, BBINOP, UNOP;
 
 program   ::=  decllist:d stmtlist:s                        {: RESULT = new Program(d,s); :}
     ;
@@ -50,7 +51,8 @@ identlist  ::= identlist:il COMMA IDENT:i                   {: il.add(Expression
     ;
 stmt ::= SEMICOLON                                          {: RESULT = Statement.empty(); :}
     | BEGIN stmtlist:sl END                                 {: RESULT = Statement.compound(sl); :}
-    | IDENT:i UNOP:op                                        {: RESULT = Statement.assunop(i, op); :}
+    | IDENT:i UNOP:op                                       {: RESULT = Statement.assunop(i, op); :}
+    | UNOP:op IDENT:i                                       {: RESULT = Statement.assunop(i, op); :}
     | IDENT:i ASSBINOP:op expr:e                            {: RESULT = Statement.assbinop(i, op, e); :}
     | IDENT:i ASSIGN expr:e SEMICOLON                       {: RESULT = Statement.assign(ixleft,i,e,ixright); :}
     | IDENT:i ASSIGN READ LPAR RPAR SEMICOLON               {: RESULT = Statement.read(ixleft,i,ixright); :}
@@ -60,6 +62,10 @@ stmt ::= SEMICOLON                                          {: RESULT = Statemen
     | IF LPAR cond:c RPAR stmt:s                            {: RESULT = Statement.ifthen(c,s); :}
     | IF LPAR cond:c RPAR stmt:t ELSE stmt:e                {: RESULT = Statement.ifthenelse(c,t,e); :}
     | WHILE LPAR cond:c RPAR stmt:s                         {: RESULT = Statement.whileloop(c,s); :}
+    | FOR LPAR IDENT:i ASSIGN expr:e SEMICOLON cond:c SEMICOLON stmt:f RPAR stmt:s
+                                                            {: RESULT = Statement.forloop((Statement.Assign)Statement.assign(null,i,e,null),c,f,s); :}
+    | BREAK SEMICOLON                                       {: RESULT = Statement.breakst(); :}
+    | CONTINUE SEMICOLON                                    {: RESULT = Statement.continuest(); :}
     | error:e                                               {: parser.report_error("Syntax error, skip rest",e); :}
     ;
 cond ::= BOOLCONST:c                                        {: RESULT = Condition.boolconst(c); :}
@@ -71,8 +77,9 @@ cond ::= BOOLCONST:c                                        {: RESULT = Conditio
 expr ::= IDENT:i                                            {: RESULT = Expression.ident(ixleft,i,ixright); :}
     | INTCONST:c                                            {: RESULT = Expression.intconst(c); :}
     | LPAR expr:e RPAR                                      {: RESULT = Expression.priority(e); :}
-    | BINOP2:op expr:e                                      {: RESULT = Expression.unop(e, op); :}
+    | BINOP2:op expr:e                                      {: RESULT = Expression.unop(e); :}
     | IDENT:i UNOP:op                                        {: RESULT = Expression.unop(i, op); :}
+    | UNOP:op IDENT:i                                        {: RESULT = Expression.unop(i, op, false); :}
     | expr:e1 BINOP1:op expr:e2                              {: RESULT = Expression.binop(e1,op,e2); :}
     | expr:e1 BINOP2:op expr:e2                              {: RESULT = Expression.binop(e1,op,e2); :}
     ;

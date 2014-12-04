@@ -4,8 +4,11 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
 
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class CodeGenerator extends ASTVisitor implements Opcodes, Constants {
@@ -13,8 +16,10 @@ public class CodeGenerator extends ASTVisitor implements Opcodes, Constants {
     private GeneratorAdapter mv;
     private Map<String, Integer> addressTable;
     private String className;
+    private Context context;
 
     public CodeGenerator(String className) {
+        this.context = new Context();
         this.className = className;
         this.addressTable = new HashMap<String, Integer>();
         this.cw= new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
@@ -30,7 +35,7 @@ public class CodeGenerator extends ASTVisitor implements Opcodes, Constants {
         mv = new GeneratorAdapter(ACC_PUBLIC + ACC_STATIC, m, null, null, cw);
     }
     public void postVisit(Program p) {
-        mv.visitInsn(RETURN);
+        mv.returnValue();
         mv.visitMaxs(1, 1);
         mv.visitEnd();
         cw.visitEnd();
@@ -55,7 +60,7 @@ public class CodeGenerator extends ASTVisitor implements Opcodes, Constants {
     public void postVisit(Statement.Write i){
         mv.getStatic(Type.getType(System.class), "out", Type.getType(PrintStream.class));
         if (i.e != null) {
-            mv.visitInsn(SWAP);
+            mv.swap();
             mv.invokeVirtual(Type.getType(PrintStream.class), Method.getMethod("void println (int)"));
         } else {
             mv.push(i.s);
@@ -66,51 +71,48 @@ public class CodeGenerator extends ASTVisitor implements Opcodes, Constants {
         if (i.message != null) {
             Statement.write(i.message).accept(this);
         }
-        mv.visitTypeInsn(NEW, "java/util/Scanner");
-        mv.visitInsn(DUP);
-        mv.visitFieldInsn(
-                Opcodes.GETSTATIC,
-                "java/lang/System",
-                "in",
-                "Ljava/io/InputStream;"
-        );
-        mv.visitMethodInsn(INVOKESPECIAL,
-                "java/util/Scanner",
-                "<init>",
-                "(Ljava/io/InputStream;)V",
-                false
-        );
-        mv.visitMethodInsn(INVOKEVIRTUAL,
-                "java/util/Scanner",
-                "nextInt",
-                "()I",
-                false
-        );
-
+        mv.newInstance(Type.getType(java.util.Scanner.class));
+        mv.dup();
+        mv.getStatic(Type.getType(System.class), "in", Type.getType(InputStream.class));
+        mv.invokeConstructor(Type.getType(java.util.Scanner.class), Method.getMethod("void <init> (Ljava/io/InputStream;)"));
+        mv.invokeVirtual(Type.getType(java.util.Scanner.class), Method.getMethod("int getInt ()"));
         mv.visitIntInsn(ISTORE, addressTable.get(i.lhs));
     }
     public boolean preVisit(Statement.IfThenElse i){
-            Label l1 = new Label();
-            Label l2 = new Label();
-            i.condition.accept(this);
-            mv.visitJumpInsn(IFEQ, l1);
+        if (i.condition.isConstant() && i.condition.getValue()) {
             i.then.accept(this);
-            mv.visitJumpInsn(GOTO, l2);
-            mv.visitLabel(l1);
-            if (i.els != null)
-                i.els.accept(this);
-            mv.visitLabel(l2);
+            return false;
+        }
+        else if (i.els != null) {
+            i.els.accept(this);
+            return false;
+        }
+
+        Label l1 = new Label();
+        Label l2 = new Label();
+        i.condition.accept(this);
+        mv.visitJumpInsn(IFEQ, l1);
+        i.then.accept(this);
+        mv.visitJumpInsn(GOTO, l2);
+        mv.visitLabel(l1);
+        if (i.els != null)
+            i.els.accept(this);
+        mv.visitLabel(l2);
         return false;
     }
     public boolean preVisit(Statement.Loop i){
+        if (i.condition.isConstant() && !i.condition.getValue())
+            return false;
         Label conditionLabel = new Label();
         Label endLabel = new Label();
+        context.enterContext(new LoopContext(conditionLabel, endLabel));
         mv.visitLabel(conditionLabel);
         i.condition.accept(this);
         mv.visitJumpInsn(IFEQ, endLabel);
         i.body.accept(this);
         mv.visitJumpInsn(GOTO, conditionLabel);
         mv.visitLabel(endLabel);
+        context.exitContext();
         return false;
     }
     public boolean preVisit(Declaration d){
@@ -125,30 +127,32 @@ public class CodeGenerator extends ASTVisitor implements Opcodes, Constants {
 
     }
     public void postVisit(Condition.BinCondition i){
+        Type type = Type.INT_TYPE;
         Label l1 = new Label();
         Label l2 = new Label();
         switch (i.op) {
-            case EQ: mv.visitJumpInsn(IF_ICMPEQ, l1); break;
-            case NEQ: mv.visitJumpInsn(IF_ICMPNE, l1); break;
-            case GT: mv.visitJumpInsn(IF_ICMPGT, l1); break;
-            case GTQ: mv.visitJumpInsn(IF_ICMPGE, l1); break;
-            case LE: mv.visitJumpInsn(IF_ICMPLT, l1); break;
-            case LEQ: mv.visitJumpInsn(IF_ICMPLE, l1); break;
-            default: break;
+            case EQ: mv.ifCmp(type, GeneratorAdapter.EQ, l1); break;
+            case NEQ: mv.ifCmp(type, GeneratorAdapter.NE, l1); break;
+            case GT: mv.ifCmp(type, GeneratorAdapter.GT, l1); break;
+            case GTQ: mv.ifCmp(type, GeneratorAdapter.GE, l1); break;
+            case LE: mv.ifCmp(type, GeneratorAdapter.LT, l1); break;
+            case LEQ: mv.ifCmp(type, GeneratorAdapter.LE, l1); break;
+            default: throw new RuntimeException();
         }
-        mv.visitInsn(ICONST_0);
-        mv.visitJumpInsn(GOTO, l2);
+        mv.push(0);
+        mv.goTo(l2);
         mv.visitLabel(l1);
-        mv.visitInsn(ICONST_1);
+        mv.push(1);
         mv.visitLabel(l2);
     }
     public void postVisit(Condition.BBinCondition i){
-        if (i.op == AND) mv.visitInsn(IAND);
-        if (i.op == OR) mv.visitInsn(IOR);
+        Type type = Type.INT_TYPE;
+        if (i.op == AND) mv.math(GeneratorAdapter.AND, type);
+        if (i.op == OR) mv.math(GeneratorAdapter.OR, type);
     }
     public void visit(Condition.BoolConst d){
-        if (d.b) mv.visitInsn(ICONST_1);
-        else mv.visitInsn(ICONST_0);
+        if (d.b) mv.push(1);
+        else mv.push(0);
     }
     public void visit(Expression.Identifier d){
         mv.loadLocal(addressTable.get(d.i));
@@ -157,34 +161,31 @@ public class CodeGenerator extends ASTVisitor implements Opcodes, Constants {
         mv.visitLdcInsn(d.i);
     }
     public void postVisit(Expression.Binex i){
+        Type type = Type.INT_TYPE;
         switch (i.op) {
-            case PLUS: mv.visitInsn(IADD); break;
-            case MINUS: mv.visitInsn(ISUB); break;
-            case MULT: mv.visitInsn(IMUL); break;
-            case DIV: mv.visitInsn(IDIV); break;
-            case MOD: mv.visitInsn(IREM); break;
+            case PLUS: mv.math(GeneratorAdapter.ADD, type); break;
+            case MINUS: mv.math(GeneratorAdapter.SUB, type); break;
+            case MULT: mv.math(GeneratorAdapter.MUL, type); break;
+            case DIV: mv.math(GeneratorAdapter.DIV, type); break;
+            case MOD: mv.math(GeneratorAdapter.REM, type); break;
         }
     }
     public void postVisit(Expression.Unex i){
+        Type type = Type.INT_TYPE;
         switch (i.op) {
-            case MINUS:
-                mv.visitInsn(INEG);
+            case UMINUS:
+                mv.math(UMINUS, type);
                 break;
-            case PLUS: break;
             case ADDONE:
+            case SUBONE:
                 String id = ((Expression.Identifier) i.e1).i;
                 mv.loadLocal(addressTable.get(id));
-                mv.visitInsn(DUP);
-                mv.visitInsn(ICONST_1);
-                mv.visitInsn(IADD);
-                mv.storeLocal(addressTable.get(id));
-                break;
-            case SUBONE:
-                id = ((Expression.Identifier) i.e1).i;
-                mv.loadLocal(addressTable.get(id));
-                mv.visitInsn(DUP);
-                mv.visitInsn(ICONST_1);
-                mv.visitInsn(ISUB);
+                if (i.isPrev)
+                    mv.dup();
+                mv.push(1);
+                mv.math(i.op, type);
+                if (!i.isPrev)
+                    mv.dup();
                 mv.storeLocal(addressTable.get(id));
                 break;
             default: throw new RuntimeException();
@@ -192,17 +193,18 @@ public class CodeGenerator extends ASTVisitor implements Opcodes, Constants {
 
     }
     public void visit (Statement.AssUnop i) {
+        Type type = Type.INT_TYPE;
         switch (i.op) {
             case ADDONE:
                 mv.loadLocal(addressTable.get(i.id));
-                mv.visitInsn(ICONST_1);
-                mv.visitInsn(IADD);
+                mv.push(1);
+                mv.math(GeneratorAdapter.ADD, type);
                 mv.storeLocal(addressTable.get(i.id));
                 break;
             case SUBONE:
                 mv.loadLocal(addressTable.get(i.id));
-                mv.visitInsn(ICONST_1);
-                mv.visitInsn(ISUB);
+                mv.push(1);
+                mv.math(GeneratorAdapter.SUB, type);
                 mv.storeLocal(addressTable.get(i.id));
                 break;
             default: throw new RuntimeException();
@@ -212,5 +214,32 @@ public class CodeGenerator extends ASTVisitor implements Opcodes, Constants {
     public void visit (Statement.AssBinOp i) {
         Expression.binop(Expression.ident(null, i.id, null), i.op - 16, i.e).accept(this);
         mv.storeLocal(addressTable.get(i.id));
+    }
+    public boolean preVisit (Statement.ForLoop l) {
+        if (l.c.isConstant() && !l.c.getValue())
+            return false;
+        l.s.accept(this);
+        Label startLabel = new Label();
+        Label incLabel = new Label();
+        Label endLabel = new Label();
+        context.enterContext(new LoopContext(incLabel, endLabel));
+        mv.visitLabel(startLabel);
+        l.c.accept(this);
+        mv.visitJumpInsn(IFEQ, endLabel);
+        l.body.accept(this);
+        mv.visitLabel (incLabel);
+        l.f.accept(this);
+        mv.visitJumpInsn(GOTO, startLabel);
+        mv.visitLabel(endLabel);
+        context.exitContext();
+        return false;
+    }
+    public void visit (Statement.Break b) {
+        if (!context.isLoop()) throw new RuntimeException();
+        mv.goTo(context.getContext().getEnd());
+    }
+    public void visit (Statement.Continue c) {
+        if (!context.isLoop()) throw new RuntimeException();
+        mv.goTo(context.getContext().getStart());
     }
 }

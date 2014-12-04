@@ -1,6 +1,3 @@
-/**
- * Created by santi698 on 18/11/14.
- */
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
 public abstract class Expression implements Constants {
@@ -76,21 +73,30 @@ public abstract class Expression implements Constants {
             }
         }
     }
-    public static Unex unop(Expression e, int op)             { return new Unex(e, op);   }
+    public static Unex unop(Expression e)             { return new Unex(e, Constants.UMINUS);   }
     public static Unex unop(String id, int op)             { return new Unex(new Identifier(null,id,null), op);   }
+    public static Unex unop(String id, int op, boolean isPrev)             { return new Unex(new Identifier(null,id,null), op, isPrev);   }
     public static class Unex extends Expression {
         public Expression e1;
         public int op;
+        public boolean isPrev;
         public Unex(Expression e1, int op) {
             this.e1=e1;
             this.op = op;
+            this.isPrev = true;
         }
+
+        public Unex(Expression e1, int op, boolean isPrev) {
+            this.e1 = e1;
+            this.op = op;
+            this.isPrev = isPrev;
+        }
+
         public String toString() {
             switch (op) {
                 case SUBONE: break;
                 case ADDONE: break;
-                case MINUS: break;
-                case PLUS: break;
+                case UMINUS: break;
                 default: throw new RuntimeException();
             }
             return "-"+e1;
@@ -108,9 +114,8 @@ public abstract class Expression implements Constants {
         public int getValue() {
             switch (op) {
                 case SUBONE:
-                case ADDONE:
                 case PLUS: return e1.getValue();
-                case MINUS: return -e1.getValue();
+                case UMINUS: return -e1.getValue();
                 default: throw new RuntimeException();
             }
         }
@@ -120,16 +125,6 @@ public abstract class Expression implements Constants {
     public static IntConst intconst(int i)      { return new IntConst(i);    }
     public static class IntConst extends Expression {
         public int i;
-        public IntConst(int i1, int i2, int op) {
-            switch (op) {
-                case PLUS: i = i1 + i2; break;
-                case MINUS: i = i1 - i2; break;
-                case DIV: i = i1 / i2; break;
-                case MULT: i = i1 * i2; break;
-                case MOD: i = i1 % i2; break;
-                default: break;
-            }
-        }
         public IntConst(int i)                  { this.i=i;	}
         public String toString()                { return i+"";	}
 
